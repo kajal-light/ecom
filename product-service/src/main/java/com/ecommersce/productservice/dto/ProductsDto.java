@@ -1,5 +1,6 @@
-package com.ecommersce.productservice.model;
+package com.ecommersce.productservice.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -10,12 +11,17 @@ import java.time.LocalDate;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ProductData implements Serializable {
+public class ProductsDto implements Serializable {
     private String productId;
+    @JsonIgnore
     private String productName;
+    @JsonIgnore
     private String category;
-    private Double price;
+    @JsonIgnore
+    private Double productPrice;
+    @JsonIgnore
     private LocalDate date;
+    @JsonIgnore
     private Double rating;
     private Integer stock;
 

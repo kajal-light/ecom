@@ -1,14 +1,18 @@
 package com.ecommerce.orderservice.service;
 
-import com.ecommerce.orderservice.dto.OrderRepository;
-import com.ecommerce.orderservice.model.OrderServiceRequestDTO;
-import com.ecommerce.orderservice.model.OrderServiceResponse;
-import com.ecommerce.orderservice.model.ProductDTO;
-import com.ecommerce.orderservice.model.ProductData;
+import com.ecommerce.orderservice.dao.OrderRepository;
+import com.ecommerce.orderservice.dto.OrderServiceRequestDTO;
+import com.ecommerce.orderservice.dto.OrderServiceResponse;
+import com.ecommerce.orderservice.dto.ProductDTO;
+import com.ecommerce.orderservice.dto.ProductData;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -30,11 +34,17 @@ public class OrderServiceImpl implements OrderService {
         String url = "http://localhost:8080/product-service/fetchStock";
 //todo: put all the hardcoded to properties file
         List<ProductDTO> products = orderServiceRequestDTO.getProducts();
-        List<String> productIds = products.stream().map(product -> product.getProductId()).collect(Collectors.toList());
-        restTemplate.put(url, products);
+        List<String> productIds = products.stream().map(ProductDTO::getProductId).collect(Collectors.toList());
 
-        List<ProductData> productInventoryData = restTemplate.postForObject(url, productIds, List.class);
-//check availability of each item
+        ObjectMapper mapper=new ObjectMapper();
+       // ArrayList<ProductData> productInventoryData = restTemplate.postForObject(url, productIds, ArrayList.class);
+        JsonNode stocks=restTemplate.postForObject(url, productIds, JsonNode.class);
+        List<ProductData> stockList = mapper.convertValue(stocks, new TypeReference<List<ProductData>>() {});
+
+        List<ProductData> productsInventory = new ArrayList<>(stockList);
+
+
+        //check availability of each item
         Map<String, List<Integer>> collect = products.stream()
                 .collect(Collectors.toMap(
                         ProductDTO::getProductId,
@@ -42,9 +52,9 @@ public class OrderServiceImpl implements OrderService {
 
                             String productId = productInventory.getProductId();
                             int orderQuantity = productInventory.getProductQuantity();
-                            int stock = productInventoryData.stream()
+                            int stock = productsInventory.stream()
                                     .filter(stockItem -> stockItem.getProductId().equals(productId))
-                                    .map(product -> product.getStock())
+                                    .map(ProductData::getStock)
                                     .findFirst()
                                     .orElse(0);
                             if (stock == 0 || stock - orderQuantity < 0) {

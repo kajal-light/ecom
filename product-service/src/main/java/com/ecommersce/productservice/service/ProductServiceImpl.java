@@ -1,8 +1,8 @@
 package com.ecommersce.productservice.service;
 
 import com.ecommersce.productservice.dao.ProductRepository;
-import com.ecommersce.productservice.entity.Product;
-import com.ecommersce.productservice.model.ProductData;
+import com.ecommersce.productservice.entity.Products;
+import com.ecommersce.productservice.dto.ProductsDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -18,55 +18,66 @@ public class ProductServiceImpl implements ProductService {
     private ProductRepository productRepository;
 
     @Override
-    public void createProduct(ProductData data) {
-        Product productEntity = new Product();
-        productEntity.setProductId(UUID.randomUUID().toString());
-        productEntity.setProductName(data.getProductName());
-        productEntity.setCategory(data.getCategory());
-        productEntity.setDate(data.getDate());
-        productEntity.setStock(data.getStock());
-        productEntity.setRating(data.getRating());
-        productEntity.setPrice(data.getPrice());
-        productRepository.save(productEntity);
+    public void createProduct(ProductsDto productsDto) {
 
+        try {
+           validatedRequestedPayload(productsDto);
+
+           Products productEntity = new Products();
+           productEntity.setProductId(UUID.randomUUID().toString());
+           productEntity.setProductName(productsDto.getProductName());
+           productEntity.setCategory(productsDto.getCategory());
+           productEntity.setDate(productsDto.getDate());
+           productEntity.setStock(productsDto.getStock());
+           productEntity.setRating(productsDto.getRating());
+           productEntity.setProductPrice(productsDto.getProductPrice());
+           productRepository.save(productEntity);
+       }catch(Exception e){
+
+           throw new RuntimeException(e.getMessage());
+
+       }
     }
 
-    @Override
-    public void createListOfProduct(List<ProductData> data) {
-        List<Product> productEntity = new ArrayList<>();
 
-        for (ProductData s : data) {
-            Product entity = new Product();
-            entity.setPrice(s.getPrice());
-            entity.setRating(s.getPrice());
-            entity.setCategory(s.getCategory());
-            entity.setProductName(s.getProductName());
-            entity.setDate(s.getDate());
-            entity.setStock(s.getStock());
-            productEntity.add(entity);
+
+    @Override
+    public void createListOfProduct(List<ProductsDto> productsDto) {
+
+        List<Products> productsEntity = new ArrayList<>();
+
+        for (ProductsDto product : productsDto) {
+            Products productEntity = new Products();
+            productEntity.setProductPrice(product.getProductPrice());
+            productEntity.setRating(product.getRating());
+            productEntity.setCategory(product.getCategory());
+            productEntity.setProductName(product.getProductName());
+            productEntity.setDate(product.getDate());
+            productEntity.setStock(product.getStock());
+            productsEntity.add(productEntity);
         }
 
 
-        productRepository.saveAll(productEntity);
+        productRepository.saveAll(productsEntity);
 
     }
 
     @Override
-    public void updateProduct(String id, ProductData data) {
-        Optional<Product> entity = productRepository.findById(id);
-        if (entity.isPresent()) {
-            Product productEntity = entity.get();
-            productEntity.setProductName(data.getProductName());
-            productEntity.setCategory(data.getCategory());
-            productEntity.setDate(data.getDate());
-            productEntity.setStock(data.getStock());
-            productEntity.setRating(data.getRating());
-            productEntity.setPrice(data.getPrice());
+    public void updateProduct(String productId, ProductsDto productsDto) {
+        Optional<Products> product = productRepository.findById(productId);
+        if (product.isPresent()) {
+            Products productEntity = product.get();
+            productEntity.setProductName(productsDto.getProductName());
+            productEntity.setCategory(productsDto.getCategory());
+            productEntity.setDate(productsDto.getDate());
+            productEntity.setStock(productsDto.getStock());
+            productEntity.setRating(productsDto.getRating());
+            productEntity.setProductPrice(productsDto.getProductPrice());
             productRepository.save(productEntity);
 
         } else {
 
-            //throw exception
+            throw new RuntimeException("no data found for give Product_Id" + productId);
 
         }
 
@@ -75,120 +86,139 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public void DeleteProduct(String id) {
 
-        Optional<Product> entity = productRepository.findById(id);
+        Optional<Products> entity = productRepository.findById(id);
         entity.ifPresent(product -> productRepository.delete(product));
+
     }
 
     @Override
-    public ProductData getProductByProductId(String id) {
+    public ProductsDto getProductByProductId(String productId) {
+try {
+    Optional<Products> ProductEntity = productRepository.findByProductId(productId);
+    ProductsDto product = new ProductsDto();
+    if (ProductEntity.isPresent()) {
+        product.setProductName(ProductEntity.get().getProductName());
+        product.setCategory(ProductEntity.get().getCategory());
+        product.setDate(ProductEntity.get().getDate());
+        product.setStock(ProductEntity.get().getStock());
+        product.setRating(ProductEntity.get().getRating());
+        product.setProductPrice(ProductEntity.get().getProductPrice());
+        return product;
+    } else {
 
-        Optional<Product> entity = productRepository.findByProductId(id);
-        ProductData data = new ProductData();
-        if (entity.isPresent()) {
-            data.setProductName(entity.get().getProductName());
-            data.setCategory(entity.get().getCategory());
-            data.setDate(entity.get().getDate());
-            data.setStock(entity.get().getStock());
-            data.setRating(entity.get().getRating());
-            data.setPrice(entity.get().getPrice());
-        }
-
-
-        return data;
+        throw new RuntimeException("No data found for give Product Id" + productId);
     }
+}catch (Exception e){
 
-    @Override
-    public List<ProductData> getProductByName(String name) {
-        List<Product> entity = productRepository.findByProductName(name);
-        List<ProductData> data = new ArrayList<>();
-
-        for (Product s : entity) {
-            ProductData a = new ProductData();
-            a.setProductName(s.getProductName());
-            a.setCategory(s.getCategory());
-            a.setDate(s.getDate());
-            a.setStock(s.getStock());
-            a.setRating(s.getRating());
-            a.setPrice(s.getPrice());
-            data.add(a);
-        }
-
-
-        return data;
-    }
-
-    @Override
-    public List<ProductData> getProductByCategory(String category) {
-        List<Product> products = productRepository.findByProductCategory(category);
-        List<ProductData> productDataList = new ArrayList<>();
-
-        for (Product s : products) {
-            ProductData productData = new ProductData();
-            productData.setProductName(s.getProductName());
-            productData.setCategory(s.getCategory());
-            productData.setDate(s.getDate());
-            productData.setStock(s.getStock());
-            productData.setRating(s.getRating());
-            productData.setPrice(s.getPrice());
-            productDataList.add(productData);
-        }
-
-
-        return productDataList;
-    }
-
-    @Override
-    public List<ProductData> getProductByPrice(Double minPrice, Double maxPrice) {
-        List<Product> productEntity = productRepository.findByProductPrice(minPrice, maxPrice);
-        List<ProductData> data = new ArrayList<>();
-        ProductData a = new ProductData();
-        for (Product s : productEntity) {
-            a.setProductName(s.getProductName());
-            a.setCategory(s.getCategory());
-            a.setDate(s.getDate());
-            a.setStock(s.getStock());
-            a.setRating(s.getRating());
-            a.setPrice(s.getPrice());
-
-        }
-        data.add(a);
-
-        return data;
-    }
-
-    @Override
-    public List<ProductData> getProductByRating(Double rating) {
-        List<Product> entity = productRepository.findByRating(rating);
-        List<ProductData> data = new ArrayList<>();
-        ProductData a = new ProductData();
-        for (Product s : entity) {
-            a.setProductName(s.getProductName());
-            a.setCategory(s.getCategory());
-            a.setDate(s.getDate());
-            a.setStock(s.getStock());
-            a.setRating(s.getRating());
-            a.setPrice(s.getPrice());
-
-        }
-        data.add(a);
-
-        return data;
+    throw new RuntimeException(e.getMessage());
+}
 
 
     }
 
     @Override
-    public List<ProductData> getListOfStock(List<String> productsId) {
+    public List<ProductsDto> getProductByProductName(String name) {
+        List<Products> ListOfProductEntity = productRepository.findByProductName(name);
+        List<ProductsDto> ProductsDtoList = new ArrayList<>();
 
-        List<Product> stocks = productRepository.getProductsById(productsId);
-        List<ProductData> productDataList = new ArrayList<>();
-        for (Product product : stocks) {
-            ProductData productData = new ProductData();
-            productData.setProductId(product.getProductId());
-            productData.setStock(product.getStock());
-            productDataList.add(productData);
+        for (Products product : ListOfProductEntity) {
+            ProductsDto ProductDto = new ProductsDto();
+            ProductDto.setProductName(product.getProductName());
+            ProductDto.setCategory(product.getCategory());
+            ProductDto.setDate(product.getDate());
+            ProductDto.setStock(product.getStock());
+            ProductDto.setRating(product.getRating());
+            ProductDto.setProductPrice(product.getProductPrice());
+            ProductsDtoList.add(ProductDto);
         }
 
-        return productDataList;
+
+        return ProductsDtoList;
+    }
+
+    @Override
+    public List<ProductsDto> getProductByCategory(String category) {
+        List<Products> listOfProductsEntity = productRepository.findByProductCategory(category);
+        List<ProductsDto> productsDtoList = new ArrayList<>();
+
+        for (Products product : listOfProductsEntity) {
+            ProductsDto productsDto = new ProductsDto();
+            productsDto.setProductName(product.getProductName());
+            productsDto.setCategory(product.getCategory());
+            productsDto.setDate(product.getDate());
+            productsDto.setStock(product.getStock());
+            productsDto.setRating(product.getRating());
+            productsDto.setProductPrice(product.getProductPrice());
+            productsDtoList.add(productsDto);
+        }
+
+
+        return productsDtoList;
+    }
+
+    @Override
+    public List<ProductsDto> getProductByPrice(Double minPrice, Double maxPrice) {
+        List<Products> listOfProductEntity = productRepository.findByProductPrice(minPrice, maxPrice);
+        List<ProductsDto> productDtoList = new ArrayList<>();
+
+        for (Products productEntity : listOfProductEntity) {
+            ProductsDto productsDto = new ProductsDto();
+            productsDto.setProductName(productEntity.getProductName());
+            productsDto.setCategory(productEntity.getCategory());
+            productsDto.setDate(productEntity.getDate());
+            productsDto.setStock(productEntity.getStock());
+            productsDto.setRating(productEntity.getRating());
+            productsDto.setProductPrice(productEntity.getProductPrice());
+            productDtoList.add(productsDto);
+        }
+
+
+        return productDtoList;
+    }
+
+    @Override
+    public List<ProductsDto> getProductByRating(Double rating) {
+        List<Products> listOfProductEntity = productRepository.findByRating(rating);
+        List<ProductsDto> ProductsDtoList = new ArrayList<>();
+
+        for (Products product : listOfProductEntity) {
+            ProductsDto productDto = new ProductsDto();
+            productDto.setProductName(product.getProductName());
+            productDto.setCategory(product.getCategory());
+            productDto.setDate(product.getDate());
+            productDto.setStock(product.getStock());
+            productDto.setRating(product.getRating());
+            productDto.setProductPrice(product.getProductPrice());
+            ProductsDtoList.add(productDto);
+        }
+
+
+        return ProductsDtoList;
+
+
+    }
+
+    @Override
+    public List<ProductsDto> getListOfStock(List<String> productsId) {
+
+        List<Products> stocks = productRepository.findByProductIdIn(productsId);
+        List<ProductsDto> productsDtoList = new ArrayList<>();
+        for (Products product : stocks) {
+            ProductsDto productsDto = new ProductsDto();
+            productsDto.setProductId(product.getProductId());
+            productsDto.setStock(product.getStock());
+            productsDtoList.add(productsDto);
+        }
+
+        return productsDtoList;
+    }
+
+    private void validatedRequestedPayload(ProductsDto productsDto) {
+        if(productsDto.getProductPrice()<0 && productsDto.getProductName().isBlank()&& productsDto.getStock()<0){
+
+            throw new RuntimeException("Invalid filed value") ;
+        }
+
+
     }
 }

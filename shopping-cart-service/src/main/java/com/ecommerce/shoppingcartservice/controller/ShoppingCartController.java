@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/shopping-cart")
-public class Controller {
+public class ShoppingCartController {
 
    @Autowired
    private CartService cartService;
@@ -18,7 +18,7 @@ public class Controller {
 @PostMapping("/addCartItem/userId/{userId}/productId/{productId}/quantity/{quantity}")
 public ResponseEntity<String> addCartItem(@PathVariable String userId,@PathVariable String productId,@PathVariable int quantity){
 
-    cartService.addCartItem(userId,productId,quantity);
+       cartService.addCartItem(userId,productId,quantity);
         return new ResponseEntity<>(HttpStatus.CREATED);
 
     }
@@ -36,9 +36,8 @@ public ResponseEntity<String> addCartItem(@PathVariable String userId,@PathVaria
     public ResponseEntity<String> checkOut(@PathVariable String userId){
 
         cartService.checkOut(userId);
+     return new ResponseEntity<>("",HttpStatus.CREATED);
 
-
-        return null;
     }
 
 

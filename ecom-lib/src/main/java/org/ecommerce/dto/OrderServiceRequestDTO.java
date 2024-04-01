@@ -1,15 +1,18 @@
-package com.ecommerce.orderservice.model;
+package org.ecommerce.dto;
+
+
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
 import java.util.List;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class OrderServiceRequestDTO {
+public class OrderServiceRequestDTO implements Serializable {
 
 
     private List<ProductDTO> products;

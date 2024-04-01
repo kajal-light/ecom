@@ -1,9 +1,12 @@
 package com.ecommerce.shoppingcartservice.service;
 
-import com.ecommerce.shoppingcartservice.dto.CartRepository;
-import com.ecommerce.shoppingcartservice.entity.CartItem;
-import com.ecommerce.shoppingcartservice.model.OrderServiceRequest;
-import com.ecommerce.shoppingcartservice.model.ProductData;
+import com.ecommerce.shoppingcartservice.dao.ShoppingCartRepository;
+import com.ecommerce.shoppingcartservice.entity.ShoppingBag;
+import com.ecommerce.shoppingcartservice.dto.OrderServiceRequest;
+import com.ecommerce.shoppingcartservice.dto.ProductData;
+import com.ecommerce.shoppingcartservice.dto.ProductInformation;
+import org.ecommerce.dto.OrderServiceRequestDTO;
+import org.ecommerce.dto.ProductDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -17,7 +20,7 @@ import java.util.Optional;
 public class CartServiceImpl implements CartService {
 
     @Autowired
-    private CartRepository cartRepository;
+    private ShoppingCartRepository shoppingCartRepository;
 
 
     @Override
@@ -26,56 +29,54 @@ public class CartServiceImpl implements CartService {
 
             //throw error
         }
-        CartItem item = new CartItem();
+        ShoppingBag item = new ShoppingBag();
         RestTemplate restTemplate = new RestTemplate();
-        String url = "http://localhost:8080/product-service/getProduct/productId/{productId}";
+        String url = "http://localhost:8080/product-service/retrieveProductById/productId/{productId}";
 
         ProductData product = restTemplate.getForObject(url, ProductData.class, productId);
 
-        double totalPrice = product.getPrice() * quantity;
+        double totalPrice = product.getProductPrice() * quantity;
 
         item.setCreatedAt(LocalDate.now());
         item.setTotalPrice(totalPrice);
-        item.setProductPrice(product.getPrice());
+        item.setProductPrice(product.getProductPrice());
         item.setProductId(productId);
         item.setQuantity(quantity);
         item.setUserId(userId);
-        cartRepository.save(item);
+        shoppingCartRepository.save(item);
 
     }
 
     @Override
-    public void deleteCartItem(String userId, Long id) {
-        Optional<CartItem> byId = cartRepository.findById(id);
+    public void deleteCartItem(String userId, Long cartItemId) {
+        Optional<ShoppingBag> itemInBag = shoppingCartRepository.findById(cartItemId);
 
-        byId.ifPresent(x -> cartRepository.delete(x));
+        itemInBag.ifPresent(x -> shoppingCartRepository.delete(x));
 
 
     }
 
     @Override
     public void checkOut(String userId) {
-        double totalAmount = cartRepository.findAmountByUserId(userId);
-        List<CartItem> itemsInBag = cartRepository.findByUserId(userId);
+        double totalAmountOfUserOrder = shoppingCartRepository.findAmountByUserId(userId);
+        List<ShoppingBag> ListItemsInBag = shoppingCartRepository.findByUserId(userId);
+        OrderServiceRequestDTO request = new OrderServiceRequestDTO();
+        List<ProductDTO> productDTOs = new ArrayList<>();
 
-
-        OrderServiceRequest request = new OrderServiceRequest();
-        request.setTotalAmount(totalAmount);
-        List<Double> amountOfEachProduct = new ArrayList<>();
-        List<String> productId = new ArrayList<>();
-        List<Integer> productsQuantity = new ArrayList<>();
-
-        for (CartItem s : itemsInBag) {
-
-            amountOfEachProduct.add(s.getProductPrice());
-            productId.add(s.getProductId());
-            productsQuantity.add(s.getQuantity());
+        for (ShoppingBag itemInBag : ListItemsInBag) {
+            ProductDTO productDetail=new ProductDTO();
+            productDetail.setProductPrice(itemInBag.getProductPrice());
+            productDetail.setProductId(itemInBag.getProductId());
+            productDetail.setProductQuantity(itemInBag.getQuantity());
+            productDTOs.add(productDetail);
         }
-        request.setProductPrice(amountOfEachProduct);
-        request.setProductId(productId);
+
+        request.setProducts(productDTOs);
+        request.setTotalAmount(totalAmountOfUserOrder);
+        request.setUserId(userId);
 
         RestTemplate restTemplate = new RestTemplate();
-        String url = "http://localhost:8080/order-service/placeOrder";
+        String url = "http://localhost:9190/order-service/placeOrder";
 
         restTemplate.postForObject(url, request, String.class);
     }

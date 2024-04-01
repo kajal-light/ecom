@@ -1,8 +1,8 @@
 package com.ecommerce.orderservice.service;
 
 
-import com.ecommerce.orderservice.model.OrderServiceRequestDTO;
-import com.ecommerce.orderservice.model.OrderServiceResponse;
+import com.ecommerce.orderservice.dto.OrderServiceRequestDTO;
+import com.ecommerce.orderservice.dto.OrderServiceResponse;
 import org.springframework.stereotype.Component;
 
 @Component

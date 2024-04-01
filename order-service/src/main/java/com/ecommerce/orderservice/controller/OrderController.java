@@ -1,8 +1,8 @@
 package com.ecommerce.orderservice.controller;
 
 
-import com.ecommerce.orderservice.model.OrderServiceRequestDTO;
-import com.ecommerce.orderservice.model.OrderServiceResponse;
+import com.ecommerce.orderservice.dto.OrderServiceRequestDTO;
+import com.ecommerce.orderservice.dto.OrderServiceResponse;
 import com.ecommerce.orderservice.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
