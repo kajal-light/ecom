@@ -1,13 +1,11 @@
 package com.ecommerce.shoppingcartservice.service;
 
 import com.ecommerce.shoppingcartservice.dao.ShoppingCartRepository;
+
 import com.ecommerce.shoppingcartservice.entity.ShoppingBag;
-import com.ecommerce.shoppingcartservice.dto.OrderServiceRequest;
-import com.ecommerce.shoppingcartservice.dto.ProductData;
-import com.ecommerce.shoppingcartservice.dto.ProductInformation;
 import org.ecommerce.dto.OrderServiceRequestDTO;
 import org.ecommerce.dto.ProductDTO;
-import org.springframework.beans.BeanUtils;
+import org.ecommerce.dto.ProductData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -16,9 +14,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
-import static java.util.stream.Nodes.collect;
 
 @Service
 public class CartServiceImpl implements CartService {

@@ -8,6 +8,7 @@ import com.ecommerce.orderservice.dto.ProductData;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import org.exception.OutOfStockException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -26,11 +27,11 @@ public class OrderServiceImpl implements OrderService {
     private OrderRepository orderRepository;
 
     @Override
+    @CircuitBreaker(name = "processPayment", fallbackMethod = "processPaymentFallback")
     public OrderServiceResponse placeOrder(OrderServiceRequestDTO orderServiceRequestDTO) {
         OrderServiceResponse orderServiceResponse = new OrderServiceResponse();
         if (orderServiceRequestDTO.getUserId().isBlank()) {
             throw new RuntimeException("UserId can not be null");
-// todo: throw exception when userId is blank
         }
         RestTemplate restTemplate = new RestTemplate();
         String url = "http://localhost:8080/product-service/fetchStock";
@@ -38,14 +39,17 @@ public class OrderServiceImpl implements OrderService {
         List<ProductDTO> products = orderServiceRequestDTO.getProducts();
         List<String> productIds = products.stream().map(ProductDTO::getProductId).collect(Collectors.toList());
 
-        ObjectMapper mapper=new ObjectMapper();
+        ObjectMapper mapper = new ObjectMapper();
 
-        JsonNode stocks=restTemplate.postForObject(url, productIds, JsonNode.class);
-        List<ProductData> stockList = mapper.convertValue(stocks, new TypeReference<List<ProductData>>() {});
+        JsonNode stocks = restTemplate.postForObject(url, productIds, JsonNode.class);
+        List<ProductData> stockList = mapper.convertValue(stocks, new TypeReference<List<ProductData>>() {
+        });
 
         List<ProductData> productsInventory = new ArrayList<>(stockList);
-          isProductOutOfStock(products,productsInventory);
+        Boolean productOutOfStock = isProductOutOfStock(products, productsInventory);
+if (!productOutOfStock){
 
+}
         //check availability of each item
         Map<String, List<Integer>> collect = products.stream()
                 .collect(Collectors.toMap(
@@ -60,36 +64,38 @@ public class OrderServiceImpl implements OrderService {
                                     .findFirst()
                                     .orElse(0);
                             if (stock == 0 || stock - orderQuantity < 0) {
-                                throw new OutOfStockException("Item with Product ID: " ,"is out of stock");
+                                throw new OutOfStockException("Item with Product ID: ", "is out of stock");
                             }
                             return Arrays.asList(stock, orderQuantity);
                         }
                 ));
+
+
         orderServiceResponse.setProductWithStockAndOrderedQuantity(collect);
         return orderServiceResponse;
     }
 
+    public String processPaymentFallback(Exception e) {
+
+
+        return "SERVICE IS DOWN, PLEASE TRY AFTER SOMETIME !!!";
+    }
+
+
     private Boolean isProductOutOfStock(List<ProductDTO> products, List<ProductData> productsInventory) {
-        Map<String, List<Integer>> collect = products.stream()
-                .collect(Collectors.toMap(
-                        ProductDTO::getProductId,
-                        productInventory -> {
-
-                            String productId = productInventory.getProductId();
-                            int orderQuantity = productInventory.getProductQuantity();
-                            int stock = productsInventory.stream()
-                                    .filter(stockItem -> stockItem.getProductId().equals(productId))
-                                    .map(ProductData::getStock)
-                                    .findFirst()
-                                    .orElse(0);
-                            if (stock == 0 || stock - orderQuantity < 0) {
-                                throw new OutOfStockException("Item with Product ID: " ,"is out of stock");
-                            }
-                            return Arrays.asList(stock, orderQuantity);
-                        }
-                ));
 
 
-        return true;
+        return products.stream()
+                .noneMatch(productInventory -> {
+                    String productId = productInventory.getProductId();
+                    int orderQuantity = productInventory.getProductQuantity();
+                    int stock = productsInventory.stream()
+                            .filter(stockItem -> stockItem.getProductId().equals(productId))
+                            .mapToInt(ProductData::getStock)
+                            .findFirst()
+                            .orElse(0);
+                    return stock == 0 || stock - orderQuantity < 0;
+                });
+
     }
 }
