@@ -1,4 +1,4 @@
-package org.exception.model;
+package com.exception.model;
 
 
 import lombok.Data;

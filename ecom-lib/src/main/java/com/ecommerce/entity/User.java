@@ -1,11 +1,14 @@
-package com.ecommerce.paymentservice.entity;
+package com.ecommerce.entity;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import lombok.Data;
 
 import java.math.BigDecimal;
 
-
+@Data
+@Entity
 public class User {
 
     @Id

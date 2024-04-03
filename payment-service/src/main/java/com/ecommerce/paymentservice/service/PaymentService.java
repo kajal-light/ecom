@@ -1,7 +1,7 @@
 package com.ecommerce.paymentservice.service;
 
-import com.ecommerce.paymentservice.dto.PaymentRequest;
-import com.ecommerce.paymentservice.dto.PaymentResponse;
+import com.ecommerce.dto.PaymentRequest;
+import com.ecommerce.dto.PaymentResponse;
 import org.springframework.stereotype.Service;
 
 @Service

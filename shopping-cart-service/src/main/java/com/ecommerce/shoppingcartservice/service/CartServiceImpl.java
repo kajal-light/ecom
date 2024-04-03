@@ -1,11 +1,13 @@
 package com.ecommerce.shoppingcartservice.service;
 
+import com.ecommerce.dto.OrderServiceRequestDTO;
+import com.ecommerce.dto.ProductDTO;
+import com.ecommerce.dto.ProductData;
+import com.ecommerce.dto.ProductsDto;
 import com.ecommerce.shoppingcartservice.dao.ShoppingCartRepository;
 
-import com.ecommerce.shoppingcartservice.entity.ShoppingBag;
-import org.ecommerce.dto.OrderServiceRequestDTO;
-import org.ecommerce.dto.ProductDTO;
-import org.ecommerce.dto.ProductData;
+import com.ecommerce.entity.ShoppingBag;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -34,7 +36,7 @@ public class CartServiceImpl implements CartService {
         String url = "http://localhost:8080/product-service/retrieveProductById/productId/{productId}";
 
         try {
-            ProductData product = restTemplate.getForObject(url, ProductData.class, productId);
+            ProductsDto product = restTemplate.getForObject(url, ProductsDto.class, productId);
             double totalPrice = product.getProductPrice() * quantity;
 
             item.setCreatedAt(LocalDate.now());

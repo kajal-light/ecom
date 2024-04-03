@@ -1,8 +1,8 @@
 package com.ecommersce.productservice.service;
 
-import com.ecommersce.productservice.dto.ProductsDto;
+import com.ecommerce.dto.ProductsDto;
 
-import org.exception.NoDataFoundException;
+import com.exception.NoDataFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

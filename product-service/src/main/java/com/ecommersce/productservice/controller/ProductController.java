@@ -1,10 +1,10 @@
 package com.ecommersce.productservice.controller;
 
 
-import com.ecommersce.productservice.dto.ProductsDto;
+import com.ecommerce.dto.ProductsDto;
 
 import com.ecommersce.productservice.service.ProductService;
-import org.exception.NoDataFoundException;
+import com.exception.NoDataFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

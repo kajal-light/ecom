@@ -1,6 +1,6 @@
 package com.ecommersce.productservice.dao;
 
-import com.ecommersce.productservice.entity.Products;
+import com.ecommerce.entity.Products;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

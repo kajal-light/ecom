@@ -1,7 +1,7 @@
 package com.ecommersce.productservice.controller;
 
-import org.exception.NoDataFoundException;
-import org.exception.model.ErrorDetails;
+import com.exception.NoDataFoundException;
+import com.exception.model.ErrorDetails;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;

@@ -1,15 +1,16 @@
 package com.ecommerce.orderservice.service;
 
+import com.ecommerce.dto.OrderServiceRequestDTO;
 import com.ecommerce.orderservice.dao.OrderRepository;
-import com.ecommerce.orderservice.dto.OrderServiceRequestDTO;
-import com.ecommerce.orderservice.dto.OrderServiceResponse;
-import com.ecommerce.orderservice.dto.ProductDTO;
-import com.ecommerce.orderservice.dto.ProductData;
+
+import com.ecommerce.dto.OrderServiceResponse;
+import com.ecommerce.dto.ProductDTO;
+import com.ecommerce.dto.ProductData;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
-import org.exception.OutOfStockException;
+import com.exception.OutOfStockException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;

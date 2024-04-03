@@ -1,6 +1,6 @@
 package com.ecommerce.paymentservice.repository;
 
-import com.ecommerce.paymentservice.entity.Payment;
+import com.ecommerce.entity.Payment;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

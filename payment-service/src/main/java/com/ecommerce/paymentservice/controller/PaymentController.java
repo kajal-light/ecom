@@ -1,8 +1,8 @@
 package com.ecommerce.paymentservice.controller;
 
 
-import com.ecommerce.paymentservice.dto.PaymentRequest;
-import com.ecommerce.paymentservice.dto.PaymentResponse;
+import com.ecommerce.dto.PaymentRequest;
+import com.ecommerce.dto.PaymentResponse;
 import com.ecommerce.paymentservice.service.PaymentService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;

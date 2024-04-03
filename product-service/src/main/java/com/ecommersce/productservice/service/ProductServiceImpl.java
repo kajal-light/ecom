@@ -1,10 +1,10 @@
 package com.ecommersce.productservice.service;
 
 import com.ecommersce.productservice.dao.ProductRepository;
-import com.ecommersce.productservice.entity.Products;
-import com.ecommersce.productservice.dto.ProductsDto;
+import com.ecommerce.entity.Products;
+import com.ecommerce.dto.ProductsDto;
 import lombok.extern.slf4j.Slf4j;
-import org.exception.NoDataFoundException;
+import com.exception.NoDataFoundException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

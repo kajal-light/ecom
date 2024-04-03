@@ -1,4 +1,4 @@
-package org.exception;
+package com.exception;
 
 public class OutOfStockException extends RuntimeException {
     private final String errorCode;

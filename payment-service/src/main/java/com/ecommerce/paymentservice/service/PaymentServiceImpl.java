@@ -1,10 +1,10 @@
 package com.ecommerce.paymentservice.service;
 
-import com.ecommerce.paymentservice.dto.PaymentRequest;
-import com.ecommerce.paymentservice.dto.PaymentResponse;
-import com.ecommerce.paymentservice.dto.PaymentStatus;
-import com.ecommerce.paymentservice.entity.Payment;
-import com.ecommerce.paymentservice.exception.InsufficientBalanceException;
+import com.ecommerce.dto.PaymentRequest;
+import com.ecommerce.dto.PaymentResponse;
+import com.ecommerce.dto.PaymentStatus;
+import com.ecommerce.entity.Payment;
+import com.exception.InsufficientBalanceException;
 import com.ecommerce.paymentservice.repository.PaymentRepository;
 import com.ecommerce.paymentservice.repository.UserRepository;
 import org.springframework.beans.BeanUtils;
@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Component
 public class PaymentServiceImpl implements PaymentService {
@@ -33,6 +34,7 @@ public class PaymentServiceImpl implements PaymentService {
         Payment payment = new Payment();
         if (balance > 0) {
             BeanUtils.copyProperties(paymentRequest, payment);
+            payment.setPaymentId(UUID.randomUUID().toString());
             payment = paymentRepository.save(payment);
             BeanUtils.copyProperties(payment, paymentResponse);
             paymentResponse.setPaymentDate(LocalDateTime.now());
@@ -47,6 +49,7 @@ public class PaymentServiceImpl implements PaymentService {
         } else {
             System.out.println("BALANCE 0 after the order");
             BeanUtils.copyProperties(paymentRequest, payment);
+            payment.setPaymentId(UUID.randomUUID().toString());
             payment = paymentRepository.save(payment);
             BeanUtils.copyProperties(payment, paymentResponse);
             paymentResponse.setPaymentDate(LocalDateTime.now());

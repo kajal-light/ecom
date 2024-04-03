@@ -1,4 +1,4 @@
-package com.ecommerce.paymentservice.dto;
+package com.ecommerce.dto;
 
 import lombok.Data;
 
