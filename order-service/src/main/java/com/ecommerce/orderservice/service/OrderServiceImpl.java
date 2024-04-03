@@ -8,6 +8,7 @@ import com.ecommerce.orderservice.dto.ProductData;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.exception.OutOfStockException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -28,6 +29,7 @@ public class OrderServiceImpl implements OrderService {
     public OrderServiceResponse placeOrder(OrderServiceRequestDTO orderServiceRequestDTO) {
         OrderServiceResponse orderServiceResponse = new OrderServiceResponse();
         if (orderServiceRequestDTO.getUserId().isBlank()) {
+            throw new RuntimeException("UserId can not be null");
 // todo: throw exception when userId is blank
         }
         RestTemplate restTemplate = new RestTemplate();
@@ -37,12 +39,12 @@ public class OrderServiceImpl implements OrderService {
         List<String> productIds = products.stream().map(ProductDTO::getProductId).collect(Collectors.toList());
 
         ObjectMapper mapper=new ObjectMapper();
-       // ArrayList<ProductData> productInventoryData = restTemplate.postForObject(url, productIds, ArrayList.class);
+
         JsonNode stocks=restTemplate.postForObject(url, productIds, JsonNode.class);
         List<ProductData> stockList = mapper.convertValue(stocks, new TypeReference<List<ProductData>>() {});
 
         List<ProductData> productsInventory = new ArrayList<>(stockList);
-
+          isProductOutOfStock(products,productsInventory);
 
         //check availability of each item
         Map<String, List<Integer>> collect = products.stream()
@@ -58,12 +60,36 @@ public class OrderServiceImpl implements OrderService {
                                     .findFirst()
                                     .orElse(0);
                             if (stock == 0 || stock - orderQuantity < 0) {
-                                throw new RuntimeException("Item with Product ID: " + productId + " is out of stock");
+                                throw new OutOfStockException("Item with Product ID: " ,"is out of stock");
                             }
                             return Arrays.asList(stock, orderQuantity);
                         }
                 ));
         orderServiceResponse.setProductWithStockAndOrderedQuantity(collect);
         return orderServiceResponse;
+    }
+
+    private Boolean isProductOutOfStock(List<ProductDTO> products, List<ProductData> productsInventory) {
+        Map<String, List<Integer>> collect = products.stream()
+                .collect(Collectors.toMap(
+                        ProductDTO::getProductId,
+                        productInventory -> {
+
+                            String productId = productInventory.getProductId();
+                            int orderQuantity = productInventory.getProductQuantity();
+                            int stock = productsInventory.stream()
+                                    .filter(stockItem -> stockItem.getProductId().equals(productId))
+                                    .map(ProductData::getStock)
+                                    .findFirst()
+                                    .orElse(0);
+                            if (stock == 0 || stock - orderQuantity < 0) {
+                                throw new OutOfStockException("Item with Product ID: " ,"is out of stock");
+                            }
+                            return Arrays.asList(stock, orderQuantity);
+                        }
+                ));
+
+
+        return true;
     }
 }

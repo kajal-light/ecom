@@ -2,6 +2,7 @@ package com.ecommersce.productservice.service;
 
 import com.ecommersce.productservice.dto.ProductsDto;
 
+import org.exception.NoDataFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -12,19 +13,19 @@ public interface ProductService {
 
     void createListOfProduct(List<ProductsDto> data);
 
-    void updateProduct(String productId, ProductsDto productsDto);
+    void updateProduct(String productId, ProductsDto productsDto) throws NoDataFoundException;
 
     void DeleteProduct(String productId);
 
-    ProductsDto getProductByProductId(String productId);
+    ProductsDto getProductByProductId(String productId) throws NoDataFoundException;
 
-    List<ProductsDto> getProductByProductName(String name);
+    List<ProductsDto> getProductByProductName(String name) throws NoDataFoundException;
 
-    List<ProductsDto> getProductByCategory(String category);
+    List<ProductsDto> getProductByCategory(String category) throws NoDataFoundException;
 
-    List<ProductsDto> getProductByPrice(Double minPrice, Double maxPrice);
+    List<ProductsDto> getProductByPrice(Double minPrice, Double maxPrice) throws NoDataFoundException;
 
-    List<ProductsDto> getProductByRating(Double rating);
+    List<ProductsDto> getProductByRating(Double rating) throws NoDataFoundException;
 
-    List<ProductsDto> getListOfStock(List<String> productsId);
+    List<ProductsDto> getListOfStock(List<String> productsId) throws NoDataFoundException;
 }

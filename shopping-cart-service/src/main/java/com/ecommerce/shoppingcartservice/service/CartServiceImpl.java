@@ -7,6 +7,7 @@ import com.ecommerce.shoppingcartservice.dto.ProductData;
 import com.ecommerce.shoppingcartservice.dto.ProductInformation;
 import org.ecommerce.dto.OrderServiceRequestDTO;
 import org.ecommerce.dto.ProductDTO;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -15,6 +16,9 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+
+import static java.util.stream.Nodes.collect;
 
 @Service
 public class CartServiceImpl implements CartService {
@@ -33,17 +37,21 @@ public class CartServiceImpl implements CartService {
         RestTemplate restTemplate = new RestTemplate();
         String url = "http://localhost:8080/product-service/retrieveProductById/productId/{productId}";
 
-        ProductData product = restTemplate.getForObject(url, ProductData.class, productId);
+        try {
+            ProductData product = restTemplate.getForObject(url, ProductData.class, productId);
+            double totalPrice = product.getProductPrice() * quantity;
 
-        double totalPrice = product.getProductPrice() * quantity;
+            item.setCreatedAt(LocalDate.now());
+            item.setTotalPrice(totalPrice);
+            item.setProductPrice(product.getProductPrice());
+            item.setProductId(productId);
+            item.setQuantity(quantity);
+            item.setUserId(userId);
+            shoppingCartRepository.save(item);
+        }catch (Exception e){
+            throw new RuntimeException(e.getMessage());
+        }
 
-        item.setCreatedAt(LocalDate.now());
-        item.setTotalPrice(totalPrice);
-        item.setProductPrice(product.getProductPrice());
-        item.setProductId(productId);
-        item.setQuantity(quantity);
-        item.setUserId(userId);
-        shoppingCartRepository.save(item);
 
     }
 
@@ -58,10 +66,13 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public void checkOut(String userId) {
+
         double totalAmountOfUserOrder = shoppingCartRepository.findAmountByUserId(userId);
         List<ShoppingBag> ListItemsInBag = shoppingCartRepository.findByUserId(userId);
         OrderServiceRequestDTO request = new OrderServiceRequestDTO();
         List<ProductDTO> productDTOs = new ArrayList<>();
+
+
 
         for (ShoppingBag itemInBag : ListItemsInBag) {
             ProductDTO productDetail=new ProductDTO();

@@ -3,6 +3,9 @@ package com.ecommersce.productservice.service;
 import com.ecommersce.productservice.dao.ProductRepository;
 import com.ecommersce.productservice.entity.Products;
 import com.ecommersce.productservice.dto.ProductsDto;
+import lombok.extern.slf4j.Slf4j;
+import org.exception.NoDataFoundException;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -10,7 +13,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
+
+
+@Slf4j
 @Component
 public class ProductServiceImpl implements ProductService {
 
@@ -22,15 +29,9 @@ public class ProductServiceImpl implements ProductService {
 
         try {
            validatedRequestedPayload(productsDto);
-
            Products productEntity = new Products();
-           productEntity.setProductId(UUID.randomUUID().toString());
-           productEntity.setProductName(productsDto.getProductName());
-           productEntity.setCategory(productsDto.getCategory());
-           productEntity.setDate(productsDto.getDate());
-           productEntity.setStock(productsDto.getStock());
-           productEntity.setRating(productsDto.getRating());
-           productEntity.setProductPrice(productsDto.getProductPrice());
+            BeanUtils.copyProperties(productsDto,productEntity);
+            productEntity.setProductId(UUID.randomUUID().toString());
            productRepository.save(productEntity);
        }catch(Exception e){
 
@@ -44,43 +45,45 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public void createListOfProduct(List<ProductsDto> productsDto) {
 
-        List<Products> productsEntity = new ArrayList<>();
-
-        for (ProductsDto product : productsDto) {
-            Products productEntity = new Products();
-            productEntity.setProductPrice(product.getProductPrice());
-            productEntity.setRating(product.getRating());
-            productEntity.setCategory(product.getCategory());
-            productEntity.setProductName(product.getProductName());
-            productEntity.setDate(product.getDate());
-            productEntity.setStock(product.getStock());
-            productsEntity.add(productEntity);
-        }
-
+      try {
+          List<Products>productsEntity=  productsDto.stream().map(product->{
+                  Products productEntity = new Products();
+                  BeanUtils.copyProperties(product,productEntity);
+              productEntity.setProductId(UUID.randomUUID().toString());
+                  return productEntity;
+          }).collect(Collectors.toList());
 
         productRepository.saveAll(productsEntity);
+      }catch(Exception e){
+          throw new RuntimeException(e.getMessage());
 
+
+      }
     }
 
     @Override
-    public void updateProduct(String productId, ProductsDto productsDto) {
-        Optional<Products> product = productRepository.findById(productId);
-        if (product.isPresent()) {
-            Products productEntity = product.get();
-            productEntity.setProductName(productsDto.getProductName());
-            productEntity.setCategory(productsDto.getCategory());
-            productEntity.setDate(productsDto.getDate());
-            productEntity.setStock(productsDto.getStock());
-            productEntity.setRating(productsDto.getRating());
-            productEntity.setProductPrice(productsDto.getProductPrice());
-            productRepository.save(productEntity);
+    public void updateProduct(String productId, ProductsDto productsDto) throws NoDataFoundException {
+       try {
+           Optional<Products> product = productRepository.findById(productId);
+           if (product.isPresent()) {
+               Products productEntity = product.get();
+               productEntity.setProductName(productsDto.getProductName());
+               productEntity.setProductPrice(productsDto.getProductPrice());
+               productEntity.setStock(productsDto.getStock());
+               productEntity.setCategory(productsDto.getCategory());
+               productRepository.save(productEntity);
 
-        } else {
+           } else {
 
-            throw new RuntimeException("no data found for give Product_Id" + productId);
+               throw new NoDataFoundException("NO_DATA_FOUND", "No details found for product with ID: " + productId);
 
-        }
+           }
+       }catch(Exception e){
+           log.error(e.getMessage());
 
+           throw new NoDataFoundException("EXCEPTION_OCCURRED",  e.getMessage());
+
+       }
     }
 
     @Override
@@ -92,125 +95,142 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ProductsDto getProductByProductId(String productId) {
+    public ProductsDto getProductByProductId(String productId) throws NoDataFoundException {
 try {
-    Optional<Products> ProductEntity = productRepository.findByProductId(productId);
-    ProductsDto product = new ProductsDto();
-    if (ProductEntity.isPresent()) {
-        product.setProductName(ProductEntity.get().getProductName());
-        product.setCategory(ProductEntity.get().getCategory());
-        product.setDate(ProductEntity.get().getDate());
-        product.setStock(ProductEntity.get().getStock());
-        product.setRating(ProductEntity.get().getRating());
-        product.setProductPrice(ProductEntity.get().getProductPrice());
+    Optional<Products> productEntity = productRepository.findByProductId(productId);
+
+    if (productEntity.isPresent()) {
+        ProductsDto product = new ProductsDto();
+     BeanUtils.copyProperties(productEntity.get(),product);
         return product;
     } else {
 
-        throw new RuntimeException("No data found for give Product Id" + productId);
+        throw new NoDataFoundException("NO_DATA_FOUND", "No details found for product with ID: " + productId);
     }
 }catch (Exception e){
-
-    throw new RuntimeException(e.getMessage());
+    log.error(e.getMessage());
+    throw new NoDataFoundException("EXCEPTION_OCCURRED", e.getMessage());
 }
 
 
     }
 
     @Override
-    public List<ProductsDto> getProductByProductName(String name) {
-        List<Products> ListOfProductEntity = productRepository.findByProductName(name);
-        List<ProductsDto> ProductsDtoList = new ArrayList<>();
+    public List<ProductsDto> getProductByProductName(String name) throws NoDataFoundException {
+       try {
+           List<Products> ListOfProductEntity = productRepository.findByProductName(name);
+           if (!ListOfProductEntity.isEmpty()) {
+               return ListOfProductEntity.stream().map(ProductEntity -> {
+                   ProductsDto productsDto = new ProductsDto();
+                   BeanUtils.copyProperties(ProductEntity, productsDto);
+                   return productsDto;
+               }).collect(Collectors.toList());
+           } else {
+               throw new NoDataFoundException("NO_DATA_FOUND", "No details found for product with product name: " + name);
+           }
+       }catch (Exception e){
+           log.error(e.getMessage());
+           throw new NoDataFoundException("EXCEPTION_OCCURRED",  e.getMessage());
+       }
 
-        for (Products product : ListOfProductEntity) {
-            ProductsDto ProductDto = new ProductsDto();
-            ProductDto.setProductName(product.getProductName());
-            ProductDto.setCategory(product.getCategory());
-            ProductDto.setDate(product.getDate());
-            ProductDto.setStock(product.getStock());
-            ProductDto.setRating(product.getRating());
-            ProductDto.setProductPrice(product.getProductPrice());
-            ProductsDtoList.add(ProductDto);
-        }
-
-
-        return ProductsDtoList;
     }
 
     @Override
-    public List<ProductsDto> getProductByCategory(String category) {
-        List<Products> listOfProductsEntity = productRepository.findByProductCategory(category);
-        List<ProductsDto> productsDtoList = new ArrayList<>();
+    public List<ProductsDto> getProductByCategory(String category) throws NoDataFoundException {
+      try{  List<Products> listOfProductsEntity = productRepository.findByProductCategory(category);
 
-        for (Products product : listOfProductsEntity) {
-            ProductsDto productsDto = new ProductsDto();
-            productsDto.setProductName(product.getProductName());
-            productsDto.setCategory(product.getCategory());
-            productsDto.setDate(product.getDate());
-            productsDto.setStock(product.getStock());
-            productsDto.setRating(product.getRating());
-            productsDto.setProductPrice(product.getProductPrice());
-            productsDtoList.add(productsDto);
-        }
+           if(!listOfProductsEntity.isEmpty()) {
+              return listOfProductsEntity.stream().map(ProductsEntity -> {
+                     ProductsDto productsDto = new ProductsDto();
+                     BeanUtils.copyProperties(ProductsEntity, productsDto);
+                     return productsDto;
+                    }).collect(Collectors.toList());
+           }else {
 
-
-        return productsDtoList;
+            throw new NoDataFoundException("NO_DATA_FOUND", "No details found for product with category: " + category);
+                 }
+       }catch (Exception e){
+        log.error(e.getMessage());
+        throw new NoDataFoundException("EXCEPTION_OCCURRED",  e.getMessage());
     }
-
-    @Override
-    public List<ProductsDto> getProductByPrice(Double minPrice, Double maxPrice) {
-        List<Products> listOfProductEntity = productRepository.findByProductPrice(minPrice, maxPrice);
-        List<ProductsDto> productDtoList = new ArrayList<>();
-
-        for (Products productEntity : listOfProductEntity) {
-            ProductsDto productsDto = new ProductsDto();
-            productsDto.setProductName(productEntity.getProductName());
-            productsDto.setCategory(productEntity.getCategory());
-            productsDto.setDate(productEntity.getDate());
-            productsDto.setStock(productEntity.getStock());
-            productsDto.setRating(productEntity.getRating());
-            productsDto.setProductPrice(productEntity.getProductPrice());
-            productDtoList.add(productsDto);
-        }
-
-
-        return productDtoList;
-    }
-
-    @Override
-    public List<ProductsDto> getProductByRating(Double rating) {
-        List<Products> listOfProductEntity = productRepository.findByRating(rating);
-        List<ProductsDto> ProductsDtoList = new ArrayList<>();
-
-        for (Products product : listOfProductEntity) {
-            ProductsDto productDto = new ProductsDto();
-            productDto.setProductName(product.getProductName());
-            productDto.setCategory(product.getCategory());
-            productDto.setDate(product.getDate());
-            productDto.setStock(product.getStock());
-            productDto.setRating(product.getRating());
-            productDto.setProductPrice(product.getProductPrice());
-            ProductsDtoList.add(productDto);
-        }
-
-
-        return ProductsDtoList;
 
 
     }
 
     @Override
-    public List<ProductsDto> getListOfStock(List<String> productsId) {
+    public List<ProductsDto> getProductByPrice(Double minPrice, Double maxPrice) throws NoDataFoundException {
 
-        List<Products> stocks = productRepository.findByProductIdIn(productsId);
-        List<ProductsDto> productsDtoList = new ArrayList<>();
-        for (Products product : stocks) {
-            ProductsDto productsDto = new ProductsDto();
-            productsDto.setProductId(product.getProductId());
-            productsDto.setStock(product.getStock());
-            productsDtoList.add(productsDto);
+        try {
+
+            List<Products> listOfProductEntity = productRepository.findByProductPriceBetween(minPrice, maxPrice);
+            if (!listOfProductEntity.isEmpty()) {
+
+                return listOfProductEntity.stream().map(productEntity -> {
+                    ProductsDto productDto = new ProductsDto();
+                    BeanUtils.copyProperties(productEntity, productDto);
+                    return productDto;
+                }).collect(Collectors.toList());
+            } else {
+
+                throw new NoDataFoundException("NO_DATA_FOUND", "No details found for given range");
+            }
+
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            throw new NoDataFoundException("EXCEPTION_OCCURRED", "No details found" + e.getMessage());
         }
 
-        return productsDtoList;
+    }
+
+    @Override
+    public List<ProductsDto> getProductByRating(Double rating) throws NoDataFoundException {
+       try{ List<Products> listOfProductEntity = productRepository.findByRating(rating);
+
+
+        if (!listOfProductEntity.isEmpty()) {
+
+            return listOfProductEntity.stream().map(productEntity -> {
+                ProductsDto productDto = new ProductsDto();
+                BeanUtils.copyProperties(productEntity, productDto);
+                return productDto;
+            }).collect(Collectors.toList());
+        } else {
+
+            throw new NoDataFoundException("NO_DATA_FOUND", "No details found for given rating");
+        }
+    } catch (Exception e) {
+        log.error(e.getMessage());
+        throw new NoDataFoundException("EXCEPTION_OCCURRED", e.getMessage());
+    }
+
+
+    }
+
+    @Override
+    public List<ProductsDto> getListOfStock(List<String> productsId) throws NoDataFoundException {
+
+       try {
+           List<Products> stocks = productRepository.findByProductIdIn(productsId);
+           List<ProductsDto> productsDtoList = new ArrayList<>();
+           if (!stocks.isEmpty()) {
+               for (Products product : stocks) {
+                   ProductsDto productsDto = new ProductsDto();
+                   productsDto.setProductId(product.getProductId());
+                   productsDto.setStock(product.getStock());
+                   productsDtoList.add(productsDto);
+               }
+               return productsDtoList;
+           } else {
+
+               throw new NoDataFoundException("NO_DATA_FOUND", "No details found for given rating");
+
+           }
+       }catch (Exception e){
+
+           log.error(e.getMessage());
+           throw new NoDataFoundException("EXCEPTION_OCCURRED", e.getMessage());
+       }
+
     }
 
     private void validatedRequestedPayload(ProductsDto productsDto) {

@@ -4,6 +4,7 @@ package com.ecommersce.productservice.controller;
 import com.ecommersce.productservice.dto.ProductsDto;
 
 import com.ecommersce.productservice.service.ProductService;
+import org.exception.NoDataFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,7 +35,7 @@ public ResponseEntity<String> createProduct(@RequestBody ProductsDto data){
   }
 
   @PutMapping("/updateProducts/productId/{productId}")
-  public ResponseEntity<String> updateProduct(@PathVariable String productId,@RequestBody ProductsDto productsDto){
+  public ResponseEntity<String> updateProduct(@PathVariable String productId,@RequestBody ProductsDto productsDto) throws NoDataFoundException {
 
     productService.updateProduct(productId, productsDto);
     return new ResponseEntity<>("Updated successfully",HttpStatus.CREATED);
@@ -50,7 +51,7 @@ public ResponseEntity<String> createProduct(@RequestBody ProductsDto data){
 
   }
   @PostMapping("/fetchStock")
-  public ResponseEntity<List<ProductsDto>> getListOfStock(@RequestBody List<String> productsId){
+  public ResponseEntity<List<ProductsDto>> getListOfStock(@RequestBody List<String> productsId) throws NoDataFoundException {
 
   return  ResponseEntity.ok(productService.getListOfStock(productsId));
   }

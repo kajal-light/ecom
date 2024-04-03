@@ -20,12 +20,7 @@ public interface ProductRepository extends JpaRepository<Products, String> {
 
     @Query(value = "select * from products where category = :category", nativeQuery = true)
     List<Products> findByProductCategory(@Param("category") String category);
-
-    @Query(value = "select * from products where price between minPrice and maxPrice", nativeQuery = true)
-    List<Products> findByProductPrice(@Param("minPrice") Double minPrice, @Param("maxPrice") Double maxPrice);
-
+    List<Products> findByProductPriceBetween( Double minPrice, Double maxPrice);
     List<Products> findByRating(Double rating);
-
-   // @Query(value = "SELECT product_id,stock FROM products WHERE product_id IN :list", nativeQuery = true)
     List<Products> findByProductIdIn(List<String> productsId);
 }
