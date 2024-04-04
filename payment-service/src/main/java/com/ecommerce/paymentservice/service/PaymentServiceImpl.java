@@ -4,9 +4,9 @@ import com.ecommerce.dto.PaymentRequest;
 import com.ecommerce.dto.PaymentResponse;
 import com.ecommerce.dto.PaymentStatus;
 import com.ecommerce.entity.Payment;
-import com.exception.InsufficientBalanceException;
 import com.ecommerce.paymentservice.repository.PaymentRepository;
 import com.ecommerce.paymentservice.repository.UserRepository;
+import com.exception.InsufficientBalanceException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -35,6 +35,7 @@ public class PaymentServiceImpl implements PaymentService {
         if (balance > 0) {
             BeanUtils.copyProperties(paymentRequest, payment);
             payment.setPaymentId(UUID.randomUUID().toString());
+            payment.setPaymentStatus(PaymentStatus.COMPLETED.toString());
             payment = paymentRepository.save(payment);
             BeanUtils.copyProperties(payment, paymentResponse);
             paymentResponse.setPaymentDate(LocalDateTime.now());
@@ -43,13 +44,16 @@ public class PaymentServiceImpl implements PaymentService {
         } else if (balance < 0) {
             BeanUtils.copyProperties(paymentRequest, paymentResponse);
             paymentResponse.setPaymentDate(LocalDateTime.now());
-            paymentResponse.setPaymentStatus(PaymentStatus.FAILED);
-           throw new InsufficientBalanceException("User has less available amount in bank than the order amount");
+            payment.setPaymentStatus(PaymentStatus.FAILED.toString());
+            payment.setPaymentId(UUID.randomUUID().toString());
+            paymentRepository.save(payment);
+            throw new InsufficientBalanceException("TF_001", "User has less available amount in bank than the order amount");
 
         } else {
             System.out.println("BALANCE 0 after the order");
             BeanUtils.copyProperties(paymentRequest, payment);
             payment.setPaymentId(UUID.randomUUID().toString());
+            payment.setPaymentStatus(PaymentStatus.COMPLETED.toString());
             payment = paymentRepository.save(payment);
             BeanUtils.copyProperties(payment, paymentResponse);
             paymentResponse.setPaymentDate(LocalDateTime.now());

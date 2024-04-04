@@ -26,5 +26,5 @@ public class Payment {
     @Column
     private LocalDateTime paymentDate;
     @Column
-    private PaymentStatus paymentStatus;
+    private String paymentStatus;
 }
