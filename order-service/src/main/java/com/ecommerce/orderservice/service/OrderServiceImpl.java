@@ -1,16 +1,15 @@
 package com.ecommerce.orderservice.service;
 
 import com.ecommerce.dto.OrderServiceRequestDTO;
-import com.ecommerce.orderservice.dao.OrderRepository;
-
 import com.ecommerce.dto.OrderServiceResponse;
 import com.ecommerce.dto.ProductDTO;
 import com.ecommerce.dto.ProductData;
+import com.ecommerce.orderservice.dao.OrderRepository;
+import com.exception.OutOfStockException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
-import com.exception.OutOfStockException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -47,43 +46,50 @@ public class OrderServiceImpl implements OrderService {
         });
 
         List<ProductData> productsInventory = new ArrayList<>(stockList);
-        Boolean productOutOfStock = isProductOutOfStock(products, productsInventory);
-if (!productOutOfStock){
-
-}
-        //check availability of each item
-        Map<String, List<Integer>> collect = products.stream()
-                .collect(Collectors.toMap(
-                        ProductDTO::getProductId,
-                        productInventory -> {
-
-                            String productId = productInventory.getProductId();
-                            int orderQuantity = productInventory.getProductQuantity();
-                            int stock = productsInventory.stream()
-                                    .filter(stockItem -> stockItem.getProductId().equals(productId))
-                                    .map(ProductData::getStock)
-                                    .findFirst()
-                                    .orElse(0);
-                            if (stock == 0 || stock - orderQuantity < 0) {
-                                throw new OutOfStockException("Item with Product ID: ", "is out of stock");
+        Boolean isProductStockAvailable = isProductStockAvailable(products, productsInventory);
+        if (isProductStockAvailable) {
+            Map<String, List<Integer>> collect = products.stream()
+                    .filter(productInventory -> {
+                        String productId = productInventory.getProductId();
+                        int orderQuantity = productInventory.getProductQuantity();
+                        int stock = productsInventory.stream()
+                                .filter(stockItem -> stockItem.getProductId().equals(productId))
+                                .mapToInt(ProductData::getStock)
+                                .findFirst()
+                                .orElse(0);
+                        return stock > 0 && stock >= orderQuantity;
+                    })
+                    .collect(Collectors.toMap(
+                            ProductDTO::getProductId,
+                            productInventory -> {
+                                String productId = productInventory.getProductId();
+                                int orderQuantity = productInventory.getProductQuantity();
+                                int stock = productsInventory.stream()
+                                        .filter(stockItem -> stockItem.getProductId().equals(productId))
+                                        .mapToInt(ProductData::getStock)
+                                        .findFirst()
+                                        .orElse(0);
+                                return Arrays.asList(stock, orderQuantity);
                             }
-                            return Arrays.asList(stock, orderQuantity);
-                        }
-                ));
+                    ));
+
+            orderServiceResponse.setProductWithStockAndOrderedQuantity(collect);
+            return orderServiceResponse;
+        } else {
+            throw new OutOfStockException("TF_002", "Some products are out of stock");
+        }
 
 
-        orderServiceResponse.setProductWithStockAndOrderedQuantity(collect);
-        return orderServiceResponse;
     }
 
     public String processPaymentFallback(Exception e) {
 
 
-        return "SERVICE IS DOWN, PLEASE TRY AFTER SOMETIME !!!";
+        return "PAYMENT SERVICE IS DOWN, PLEASE TRY AFTER SOMETIME !!!";
     }
 
 
-    private Boolean isProductOutOfStock(List<ProductDTO> products, List<ProductData> productsInventory) {
+    private Boolean isProductStockAvailable(List<ProductDTO> products, List<ProductData> productsInventory) {
 
 
         return products.stream()
