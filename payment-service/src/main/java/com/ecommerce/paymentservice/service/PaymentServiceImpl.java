@@ -3,6 +3,7 @@ package com.ecommerce.paymentservice.service;
 import com.ecommerce.dto.PaymentRequest;
 import com.ecommerce.dto.PaymentResponse;
 import com.ecommerce.dto.PaymentStatus;
+import com.ecommerce.dto.PaymentType;
 import com.ecommerce.entity.Payment;
 import com.ecommerce.paymentservice.repository.PaymentRepository;
 import com.ecommerce.paymentservice.repository.UserRepository;
@@ -10,6 +11,7 @@ import com.exception.InsufficientBalanceException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -17,18 +19,48 @@ import java.util.UUID;
 
 @Component
 public class PaymentServiceImpl implements PaymentService {
-    @Autowired
-    PaymentRepository paymentRepository;
 
+   private final PaymentRepository paymentRepository;
+
+
+   private final UserRepository userRepository;
     @Autowired
-    UserRepository userRepository;
+    public PaymentServiceImpl(PaymentRepository paymentRepository, UserRepository userRepository) {
+        this.paymentRepository = paymentRepository;
+        this.userRepository = userRepository;
+    }
 
     @Override
+    @Transactional
     public PaymentResponse processPayment(PaymentRequest paymentRequest) {
+        PaymentResponse response=new PaymentResponse();
+
+        if(!paymentRequest.getPaymentMethod().equals(PaymentType.COD)){
+            proceedPaymentForCreditCard(paymentRequest,response);
+
+          }else{
+
+            response.setPaymentStatus(PaymentStatus.PENDING);
+            response.setPaymentMethod(PaymentType.COD);
+            response.setOrderAmount(String.valueOf(paymentRequest.getOrderAmount()));
+            response.setUserId(paymentRequest.getUserId());
+
+        }
+
+        return response;
+    }
+
+    private void proceedPaymentForCreditCard(PaymentRequest paymentRequest,PaymentResponse paymentResponse) {
+
         String userId = paymentRequest.getUserId();
-        BigDecimal availableBalance = userRepository.findAvailableBalanceByUserId(userId);
+        BigDecimal availableBalance;
+        if(!paymentRequest.getPaymentMethod().equals(PaymentType.CREDIT_CARD)) {
+            availableBalance = userRepository.findAvailableBalanceByUserId(userId);
+        }else{
+            availableBalance = userRepository.findAvailableCreditLimitByUserId(userId);
+        }
         int balance = availableBalance.compareTo(paymentRequest.getOrderAmount());
-        PaymentResponse paymentResponse = new PaymentResponse();
+
         paymentResponse.setPaymentDate(LocalDateTime.now());
         paymentResponse.setPaymentStatus(PaymentStatus.IN_PROGRESS);
         Payment payment = new Payment();
@@ -40,7 +72,7 @@ public class PaymentServiceImpl implements PaymentService {
             BeanUtils.copyProperties(payment, paymentResponse);
             paymentResponse.setPaymentDate(LocalDateTime.now());
             paymentResponse.setPaymentStatus(PaymentStatus.COMPLETED);
-            return paymentResponse;
+
         } else if (balance < 0) {
             BeanUtils.copyProperties(paymentRequest, paymentResponse);
             paymentResponse.setPaymentDate(LocalDateTime.now());
@@ -58,8 +90,10 @@ public class PaymentServiceImpl implements PaymentService {
             BeanUtils.copyProperties(payment, paymentResponse);
             paymentResponse.setPaymentDate(LocalDateTime.now());
             paymentResponse.setPaymentStatus(PaymentStatus.COMPLETED);
-            return paymentResponse;
+
         }
 
     }
+
+
 }

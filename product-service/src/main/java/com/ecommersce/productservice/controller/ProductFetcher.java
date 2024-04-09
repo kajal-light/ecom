@@ -2,7 +2,6 @@ package com.ecommersce.productservice.controller;
 
 import com.ecommerce.dto.ProductsDto;
 import com.ecommersce.productservice.service.ProductService;
-import com.exception.NoDataFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,11 +13,15 @@ import java.util.List;
 @RequestMapping("/product-service")
 public class ProductFetcher {
 
+
+    private final ProductService productService;
     @Autowired
-    private ProductService productService;
+    public ProductFetcher(ProductService productService) {
+        this.productService = productService;
+    }
 
     @GetMapping("/retrieveProductById/productId/{productId}")
-    public ResponseEntity<ProductsDto> getProductByProductId(@PathVariable String productId) throws NoDataFoundException {
+    public ResponseEntity<ProductsDto> getProductByProductId(@PathVariable String productId)  {
 
         ProductsDto data= productService.getProductByProductId(productId);
         return  ResponseEntity.ok(data);
@@ -26,27 +29,27 @@ public class ProductFetcher {
     }
 
     @GetMapping("/getProductByName/productName/{name}")
-    public ResponseEntity<List<ProductsDto>> getProductByProductName(@PathVariable String name) throws NoDataFoundException {
+    public ResponseEntity<List<ProductsDto>> getProductByProductName(@PathVariable String name) {
 
         return  ResponseEntity.ok(productService.getProductByProductName(name));
 
     }
     @GetMapping(value = "/getProductByCategory/category/{category}")
     @ResponseStatus(HttpStatus.ACCEPTED)
-    public ResponseEntity<List<ProductsDto>> getProductByCategory(@PathVariable String category) throws NoDataFoundException {
+    public ResponseEntity<List<ProductsDto>> getProductByCategory(@PathVariable String category)  {
 
         return ResponseEntity.ok(productService.getProductByCategory(category));
 
     }
     @GetMapping("/getProductByPriceRange/minPrice/{minPrice}/maxPrice/{maxPrice}")
-    public ResponseEntity<List<ProductsDto>> getProductByPrice(@PathVariable Double minPrice, @PathVariable Double maxPrice) throws NoDataFoundException {
+    public ResponseEntity<List<ProductsDto>> getProductByPrice(@PathVariable Double minPrice, @PathVariable Double maxPrice)  {
 
         return  ResponseEntity.ok(productService.getProductByPrice(minPrice,maxPrice));
 
     }
 
     @GetMapping("/getProductByRating/rating/{rating}")
-    public ResponseEntity<List<ProductsDto>> getProductByRating(@PathVariable Double rating) throws NoDataFoundException {
+    public ResponseEntity<List<ProductsDto>> getProductByRating(@PathVariable Double rating)  {
 
         return  ResponseEntity.ok(productService.getProductByRating(rating));
 

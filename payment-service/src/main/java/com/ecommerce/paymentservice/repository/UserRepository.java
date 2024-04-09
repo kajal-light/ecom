@@ -9,4 +9,6 @@ import java.math.BigDecimal;
 @Repository
 public interface UserRepository extends JpaRepository<User, String> {
     BigDecimal findAvailableBalanceByUserId(String userId);
+
+    BigDecimal findAvailableCreditLimitByUserId(String userId);
 }

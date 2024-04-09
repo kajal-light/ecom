@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PaymentResponse implements Serializable {
+
     private String userId;
     private PaymentType paymentMethod;
     private String orderAmount;

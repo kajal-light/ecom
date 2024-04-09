@@ -4,7 +4,6 @@ package com.ecommersce.productservice.controller;
 import com.ecommerce.dto.ProductsDto;
 
 import com.ecommersce.productservice.service.ProductService;
-import com.exception.NoDataFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,14 +15,17 @@ import java.util.List;
 @RequestMapping("/product-service")
 public class ProductController {
 
-  @Autowired
-  private ProductService productService;
 
-@PostMapping("/createProduct")
+  private final ProductService productService;
+  @Autowired
+    public ProductController(ProductService productService) {
+        this.productService = productService;
+    }
+
+    @PostMapping("/createProduct")
 public ResponseEntity<String> createProduct(@RequestBody ProductsDto data){
 
-  productService.createProduct(data);
-  return new ResponseEntity<>("Product is inserted successfully",HttpStatus.CREATED);
+  return new ResponseEntity<>(productService.createProduct(data),HttpStatus.CREATED);
 
   }
 @PostMapping("/createsProducts")
@@ -35,7 +37,7 @@ public ResponseEntity<String> createProduct(@RequestBody ProductsDto data){
   }
 
   @PutMapping("/updateProducts/productId/{productId}")
-  public ResponseEntity<String> updateProduct(@PathVariable String productId,@RequestBody ProductsDto productsDto) throws NoDataFoundException {
+  public ResponseEntity<String> updateProduct(@PathVariable String productId,@RequestBody ProductsDto productsDto)  {
 
     productService.updateProduct(productId, productsDto);
     return new ResponseEntity<>("Updated successfully",HttpStatus.CREATED);
@@ -46,12 +48,12 @@ public ResponseEntity<String> createProduct(@RequestBody ProductsDto data){
   @DeleteMapping("/deleteProducts/productId/{productId}")
   public ResponseEntity<String> deleteProduct(@PathVariable String productId){
 
-    productService.DeleteProduct(productId);
+    productService.deleteProduct(productId);
     return new ResponseEntity<>("Deleted successfully",HttpStatus.OK);
 
   }
   @PostMapping("/fetchStock")
-  public ResponseEntity<List<ProductsDto>> getListOfStock(@RequestBody List<String> productsId) throws NoDataFoundException {
+  public ResponseEntity<List<ProductsDto>> getListOfStock(@RequestBody List<String> productsId) {
 
   return  ResponseEntity.ok(productService.getListOfStock(productsId));
   }

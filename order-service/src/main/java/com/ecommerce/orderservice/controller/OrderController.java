@@ -2,7 +2,8 @@ package com.ecommerce.orderservice.controller;
 
 
 import com.ecommerce.dto.OrderServiceRequestDTO;
-import com.ecommerce.dto.OrderServiceResponse;
+
+import com.ecommerce.dto.PaymentResponse;
 import com.ecommerce.orderservice.service.OrderService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,14 +16,20 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/order-service")
 public class OrderController {
+
+    private final OrderService orderService;
     @Autowired
-    private OrderService orderService;
+    public OrderController(OrderService orderService) {
+        this.orderService = orderService;
+    }
 
 
     @PostMapping("/placeOrder")
-    public ResponseEntity<OrderServiceResponse> placeOrder(@RequestBody OrderServiceRequestDTO orderDto) {
+    public ResponseEntity<PaymentResponse> placeOrder(@RequestBody OrderServiceRequestDTO orderDto) {
 
-        return ResponseEntity.ok(orderService.placeOrder(orderDto));
+
+            return ResponseEntity.ok(orderService.placeOrder(orderDto));
+
 
     }
 

@@ -4,15 +4,11 @@ import com.ecommersce.productservice.dao.ProductRepository;
 import com.ecommerce.entity.Products;
 import com.ecommerce.dto.ProductsDto;
 import lombok.extern.slf4j.Slf4j;
-import com.exception.NoDataFoundException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -21,11 +17,15 @@ import java.util.stream.Collectors;
 @Component
 public class ProductServiceImpl implements ProductService {
 
+
+    private final ProductRepository productRepository;
     @Autowired
-    private ProductRepository productRepository;
+    public ProductServiceImpl(ProductRepository productRepository) {
+        this.productRepository = productRepository;
+    }
 
     @Override
-    public void createProduct(ProductsDto productsDto) {
+    public String createProduct(ProductsDto productsDto) throws RuntimeException {
 
         try {
            validatedRequestedPayload(productsDto);
@@ -33,6 +33,7 @@ public class ProductServiceImpl implements ProductService {
             BeanUtils.copyProperties(productsDto,productEntity);
             productEntity.setProductId(UUID.randomUUID().toString());
            productRepository.save(productEntity);
+           return "Product added successfully ,please find the product id "+ productEntity.getProductId() ;
        }catch(Exception e){
 
            throw new RuntimeException(e.getMessage());
@@ -46,14 +47,15 @@ public class ProductServiceImpl implements ProductService {
     public void createListOfProduct(List<ProductsDto> productsDto) {
 
       try {
-          List<Products>productsEntity=  productsDto.stream().map(product->{
-                  Products productEntity = new Products();
-                  BeanUtils.copyProperties(product,productEntity);
+          List<Products> productsEntity = new ArrayList<>();
+          for (ProductsDto dto : productsDto) {
+              Products productEntity = new Products();
+              BeanUtils.copyProperties(dto, productEntity);
               productEntity.setProductId(UUID.randomUUID().toString());
-                  return productEntity;
-          }).collect(Collectors.toList());
+              productsEntity.add(productEntity);
+          }
 
-        productRepository.saveAll(productsEntity);
+          productRepository.saveAll(productsEntity);
       }catch(Exception e){
           throw new RuntimeException(e.getMessage());
 
@@ -62,9 +64,9 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public void updateProduct(String productId, ProductsDto productsDto) throws NoDataFoundException {
+    public void updateProduct(String productId, ProductsDto productsDto)  {
        try {
-           Optional<Products> product = productRepository.findById(productId);
+           Optional<Products> product = productRepository.findByProductId(productId);
            if (product.isPresent()) {
                Products productEntity = product.get();
                productEntity.setProductName(productsDto.getProductName());
@@ -75,27 +77,27 @@ public class ProductServiceImpl implements ProductService {
 
            } else {
 
-               throw new NoDataFoundException("NO_DATA_FOUND", "No details found for product with ID: " + productId);
+               throw new NoSuchElementException();
 
            }
        }catch(Exception e){
            log.error(e.getMessage());
 
-           throw new NoDataFoundException("EXCEPTION_OCCURRED",  e.getMessage());
+           throw new NoSuchElementException();
 
        }
     }
 
     @Override
-    public void DeleteProduct(String id) {
+    public void deleteProduct(String id) {
 
         Optional<Products> entity = productRepository.findById(id);
-        entity.ifPresent(product -> productRepository.delete(product));
+        entity.ifPresent(productRepository::delete);
 
     }
 
     @Override
-    public ProductsDto getProductByProductId(String productId) throws NoDataFoundException {
+    public ProductsDto getProductByProductId(String productId)  {
 try {
     Optional<Products> productEntity = productRepository.findByProductId(productId);
 
@@ -105,38 +107,38 @@ try {
         return product;
     } else {
 
-        throw new NoDataFoundException("NO_DATA_FOUND", "No details found for product with ID: " + productId);
+        throw new NoSuchElementException();
     }
 }catch (Exception e){
     log.error(e.getMessage());
-    throw new NoDataFoundException("EXCEPTION_OCCURRED", e.getMessage());
+    throw new NoSuchElementException();
 }
 
 
     }
 
     @Override
-    public List<ProductsDto> getProductByProductName(String name) throws NoDataFoundException {
+    public List<ProductsDto> getProductByProductName(String name)  {
        try {
-           List<Products> ListOfProductEntity = productRepository.findByProductName(name);
-           if (!ListOfProductEntity.isEmpty()) {
-               return ListOfProductEntity.stream().map(ProductEntity -> {
+           List<Products> listOfProductEntity = productRepository.findByProductName(name);
+           if (!listOfProductEntity.isEmpty()) {
+               return listOfProductEntity.stream().map(productEntity -> {
                    ProductsDto productsDto = new ProductsDto();
-                   BeanUtils.copyProperties(ProductEntity, productsDto);
+                   BeanUtils.copyProperties(productEntity, productsDto);
                    return productsDto;
                }).collect(Collectors.toList());
            } else {
-               throw new NoDataFoundException("NO_DATA_FOUND", "No details found for product with product name: " + name);
+               throw new NoSuchElementException();
            }
        }catch (Exception e){
            log.error(e.getMessage());
-           throw new NoDataFoundException("EXCEPTION_OCCURRED",  e.getMessage());
+           throw new NoSuchElementException();
        }
 
     }
 
     @Override
-    public List<ProductsDto> getProductByCategory(String category) throws NoDataFoundException {
+    public List<ProductsDto> getProductByCategory(String category)  {
       try{  List<Products> listOfProductsEntity = productRepository.findByProductCategory(category);
 
            if(!listOfProductsEntity.isEmpty()) {
@@ -147,18 +149,18 @@ try {
                     }).collect(Collectors.toList());
            }else {
 
-            throw new NoDataFoundException("NO_DATA_FOUND", "No details found for product with category: " + category);
+            throw new NoSuchElementException();
                  }
        }catch (Exception e){
         log.error(e.getMessage());
-        throw new NoDataFoundException("EXCEPTION_OCCURRED",  e.getMessage());
+        throw new NoSuchElementException();
     }
 
 
     }
 
     @Override
-    public List<ProductsDto> getProductByPrice(Double minPrice, Double maxPrice) throws NoDataFoundException {
+    public List<ProductsDto> getProductByPrice(Double minPrice, Double maxPrice)  {
 
         try {
 
@@ -172,19 +174,20 @@ try {
                 }).collect(Collectors.toList());
             } else {
 
-                throw new NoDataFoundException("NO_DATA_FOUND", "No details found for given range");
+                throw new NoSuchElementException();
             }
 
         } catch (Exception e) {
             log.error(e.getMessage());
-            throw new NoDataFoundException("EXCEPTION_OCCURRED", "No details found" + e.getMessage());
+            throw new NoSuchElementException();
         }
 
     }
 
     @Override
-    public List<ProductsDto> getProductByRating(Double rating) throws NoDataFoundException {
-       try{ List<Products> listOfProductEntity = productRepository.findByRating(rating);
+    public List<ProductsDto> getProductByRating(Double rating)  {
+       try{
+           List<Products> listOfProductEntity = productRepository.findByRating(rating);
 
 
         if (!listOfProductEntity.isEmpty()) {
@@ -196,18 +199,18 @@ try {
             }).collect(Collectors.toList());
         } else {
 
-            throw new NoDataFoundException("NO_DATA_FOUND", "No details found for given rating");
+            throw new NoSuchElementException();
         }
     } catch (Exception e) {
         log.error(e.getMessage());
-        throw new NoDataFoundException("EXCEPTION_OCCURRED", e.getMessage());
+        throw new NoSuchElementException();
     }
 
 
     }
 
     @Override
-    public List<ProductsDto> getListOfStock(List<String> productsId) throws NoDataFoundException {
+    public List<ProductsDto> getListOfStock(List<String> productsId)  {
 
        try {
            List<Products> stocks = productRepository.findByProductIdIn(productsId);
@@ -222,18 +225,18 @@ try {
                return productsDtoList;
            } else {
 
-               throw new NoDataFoundException("NO_DATA_FOUND", "No details found for given rating");
+               throw new NoSuchElementException();
 
            }
        }catch (Exception e){
 
            log.error(e.getMessage());
-           throw new NoDataFoundException("EXCEPTION_OCCURRED", e.getMessage());
+           throw new NoSuchElementException();
        }
 
     }
 
-    private void validatedRequestedPayload(ProductsDto productsDto) {
+    private void validatedRequestedPayload(ProductsDto productsDto) throws RuntimeException {
         if(productsDto.getProductPrice()<0 && productsDto.getProductName().isBlank()&& productsDto.getStock()<0){
 
             throw new RuntimeException("Invalid filed value") ;

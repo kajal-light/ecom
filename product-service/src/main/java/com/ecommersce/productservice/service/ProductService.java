@@ -2,30 +2,28 @@ package com.ecommersce.productservice.service;
 
 import com.ecommerce.dto.ProductsDto;
 
-import com.exception.NoDataFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
 public interface ProductService {
-    void createProduct(ProductsDto data);
+    String createProduct(ProductsDto data) throws RuntimeException;
 
     void createListOfProduct(List<ProductsDto> data);
 
-    void updateProduct(String productId, ProductsDto productsDto) throws NoDataFoundException;
+    void updateProduct(String productId, ProductsDto productsDto) ;
 
-    void DeleteProduct(String productId);
+    void deleteProduct(String productId);
 
-    ProductsDto getProductByProductId(String productId) throws NoDataFoundException;
+    ProductsDto getProductByProductId(String productId) ;
 
-    List<ProductsDto> getProductByProductName(String name) throws NoDataFoundException;
+    List<ProductsDto> getProductByProductName(String name) ;
 
-    List<ProductsDto> getProductByCategory(String category) throws NoDataFoundException;
+    List<ProductsDto> getProductByCategory(String category) ;
 
-    List<ProductsDto> getProductByPrice(Double minPrice, Double maxPrice) throws NoDataFoundException;
+    List<ProductsDto> getProductByPrice(Double minPrice, Double maxPrice) ;
+    List<ProductsDto> getProductByRating(Double rating) ;
 
-    List<ProductsDto> getProductByRating(Double rating) throws NoDataFoundException;
-
-    List<ProductsDto> getListOfStock(List<String> productsId) throws NoDataFoundException;
+    List<ProductsDto> getListOfStock(List<String> productsId) ;
 }

@@ -1,5 +1,6 @@
 package com.ecommerce.shoppingcartservice.controller;
 
+import com.ecommerce.dto.PaymentResponse;
 import com.ecommerce.shoppingcartservice.service.CartService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -10,16 +11,20 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/shopping-cart")
 public class ShoppingCartController {
 
-   @Autowired
-   private CartService cartService;
+
+   private final CartService cartService;
+    @Autowired
+    public ShoppingCartController(CartService cartService) {
+        this.cartService = cartService;
+    }
 
 
-//addcart
+    //addcart
 @PostMapping("/addCartItem/userId/{userId}/productId/{productId}/quantity/{quantity}")
 public ResponseEntity<String> addCartItem(@PathVariable String userId,@PathVariable String productId,@PathVariable int quantity){
 
-       cartService.addCartItem(userId,productId,quantity);
-        return new ResponseEntity<>(HttpStatus.CREATED);
+
+        return new ResponseEntity<>(cartService.addCartItem(userId,productId,quantity),HttpStatus.CREATED);
 
     }
 
@@ -27,16 +32,17 @@ public ResponseEntity<String> addCartItem(@PathVariable String userId,@PathVaria
     @DeleteMapping("/deleteCartItem/userId/{userId}/itemId/{itemId}")
     public ResponseEntity<String> deleteCartItem(@PathVariable String userId,@PathVariable Long itemId){
 
-        cartService.deleteCartItem(userId,itemId);
-        return new ResponseEntity<>(HttpStatus.CREATED);
+       ;
+        return new ResponseEntity<>( cartService.deleteCartItem(userId,itemId),HttpStatus.OK);
 
     }
 
     @PostMapping("/placeOrder/userId/{userId}")
-    public ResponseEntity<String> checkOut(@PathVariable String userId){
+    public ResponseEntity<PaymentResponse> checkOut(@PathVariable String userId) throws Exception {
 
-        cartService.checkOut(userId);
-     return new ResponseEntity<>("",HttpStatus.CREATED);
+
+         return new ResponseEntity<>(cartService.checkOut(userId), HttpStatus.CREATED);
+
 
     }
 

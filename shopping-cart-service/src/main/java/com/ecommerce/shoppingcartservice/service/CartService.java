@@ -1,13 +1,14 @@
 package com.ecommerce.shoppingcartservice.service;
 
+import com.ecommerce.dto.PaymentResponse;
 import org.springframework.stereotype.Component;
 
 @Component
 public interface CartService {
-    void addCartItem(String userId, String productId, int quantity);
+    String addCartItem(String userId, String productId, int quantity);
 
-    void deleteCartItem(String userId, Long itemId);
+    String deleteCartItem(String userId, Long itemId);
 
 
-    void checkOut(String userId);
+    PaymentResponse checkOut(String userId) throws Exception;
 }
