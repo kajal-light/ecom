@@ -1,13 +1,18 @@
 package com.ecommerce.shoppingcartservice.service;
 
 import com.ecommerce.dto.*;
+import com.ecommerce.shoppingcartservice.constants.ShoppingCartServiceConstants;
 import com.ecommerce.shoppingcartservice.dao.ShoppingCartRepository;
 
 import com.ecommerce.entity.ShoppingBag;
 
+import com.ecommersce.productservice.constants.ProductServiceConstants;
 import com.exception.EmptyInputException;
+import com.exception.NoProductFoundException;
+import com.exception.model.ErrorDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -22,7 +27,9 @@ import java.util.Optional;
 public class CartServiceImpl implements CartService {
     @Value("${order.service.url}")
     private String orderServiceUrl;
-
+    @Value("${product.service.url}")
+    private String productServiceUrl;
+    RestTemplate restTemplate = new RestTemplate();
     private final ShoppingCartRepository shoppingCartRepository;
     @Autowired
     public CartServiceImpl(ShoppingCartRepository shoppingCartRepository) {
@@ -34,68 +41,63 @@ public class CartServiceImpl implements CartService {
     public String addCartItem(String userId, String productId, int quantity) {
 
         ShoppingBag item = new ShoppingBag();
-        RestTemplate restTemplate = new RestTemplate();
-        String url = "http://localhost:8080/product-service/retrieveProductById/productId/{productId}";
 
-        try {
-            ProductDTO product = restTemplate.getForObject(url, ProductDTO.class, productId);
-            assert product != null;
-            double totalPrice = product.getProductPrice() * quantity;
+            ProductDTO product = restTemplate.getForObject(productServiceUrl, ProductDTO.class, productId);
+            if(product != null) {
+                double totalPrice = product.getProductPrice() * quantity;
 
-            item.setCreatedAt(LocalDate.now());
-            item.setTotalPrice(totalPrice);
-            item.setProductPrice(product.getProductPrice());
-            item.setProductId(productId);
-            item.setQuantity(quantity);
-            item.setUserId(userId);
-            shoppingCartRepository.save(item);
-            return "Product added in a cart successfully";
-        }catch (Exception e){
-            throw new RuntimeException(e.getMessage());
+                item.setCreatedAt(LocalDate.now());
+                item.setTotalPrice(totalPrice);
+                item.setProductPrice(product.getProductPrice());
+                item.setProductId(productId);
+                item.setQuantity(quantity);
+                item.setUserId(userId);
+                shoppingCartRepository.save(item);
+                return "Product added in a cart successfully";
+            }else{
+
+                throw new NoProductFoundException(new ErrorDetails(HttpStatus.BAD_REQUEST, ProductServiceConstants.INVALID_PRODUCT_ID_CODE, ProductServiceConstants.INVALID_PRODUCT_ID_MESSAGE,ProductServiceConstants.SERVICE_NAME));
+            }
+
         }
 
 
-    }
+
+
 
     @Override
     public String deleteCartItem(String userId, Long cartItemId) {
         Optional<ShoppingBag> itemInBag = shoppingCartRepository.findById(cartItemId);
 
         itemInBag.ifPresent(shoppingCartRepository::delete);
-           return "item remove from cart";
+           return "ITEM REMOVE FROM CART";
 
     }
 
     @Override
     public PaymentResponse checkOut(String userId) throws Exception {
 
-        try {
-            if(userId==null){
+        if(userId==null){
 
-                throw new EmptyInputException("SH_03","userId should not be null", errorDetails);
+               //
             }
             double totalAmountOfUserOrder = shoppingCartRepository.findAmountByUserId(userId);
 
             List<ShoppingBag> listItemsInBag = shoppingCartRepository.findByUserId(userId);
-            OrderServiceRequestDTO request = getOrderServiceRequestDTO(userId, listItemsInBag, totalAmountOfUserOrder);
+            if(!listItemsInBag.isEmpty() && totalAmountOfUserOrder>0) {
+                OrderServiceRequestDTO request = getOrderServiceRequestDTO(userId, listItemsInBag, totalAmountOfUserOrder);
 
-            RestTemplate restTemplate = new RestTemplate();
+                PaymentResponse paymentResponse;
 
-            new PaymentResponse();
-            PaymentResponse paymentResponse;
-            try {
                 paymentResponse = restTemplate.postForObject(orderServiceUrl, request, PaymentResponse.class);
-            } catch (Exception e){
-                throw new Exception(e.getMessage());
+
+                return paymentResponse;
+        }else{
+
+                throw new NoProductFoundException(new ErrorDetails(HttpStatus.BAD_REQUEST, ShoppingCartServiceConstants.INVALID_PRODUCT_NAME_CODE, ShoppingCartServiceConstants.INVALID_PRODUCT_NAME_MESSAGE,"Shopping-Cart Service"));
             }
-
-            return paymentResponse;
         }
-       catch (Exception e){
 
-            throw new RuntimeException(e.getMessage());
-        }
-    }
 
     private static OrderServiceRequestDTO getOrderServiceRequestDTO(String userId, List<ShoppingBag> listItemsInBag, double totalAmountOfUserOrder) {
 

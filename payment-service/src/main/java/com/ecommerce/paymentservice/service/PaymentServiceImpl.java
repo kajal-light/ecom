@@ -8,8 +8,10 @@ import com.ecommerce.entity.Payment;
 import com.ecommerce.paymentservice.repository.PaymentRepository;
 import com.ecommerce.paymentservice.repository.UserRepository;
 import com.exception.InsufficientBalanceException;
+import com.exception.model.ErrorDetails;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -79,7 +81,7 @@ public class PaymentServiceImpl implements PaymentService {
             payment.setPaymentStatus(PaymentStatus.FAILED.toString());
             payment.setPaymentId(UUID.randomUUID().toString());
             paymentRepository.save(payment);
-            throw new InsufficientBalanceException("TF_001", "User has less available amount in bank than the order amount");
+            throw new InsufficientBalanceException(new ErrorDetails(HttpStatus.BAD_REQUEST, "", "",""));
 
         } else {
             System.out.println("BALANCE 0 after the order");

@@ -1,6 +1,8 @@
 package com.ecommerce.shoppingcartservice.controller;
 
 import com.exception.EmptyInputException;
+import com.exception.NoProductFoundException;
+import com.exception.model.ErrorDetails;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -25,11 +27,11 @@ public class ShoppingControllerAdvice {
         return new ResponseEntity<String>("Input data is invalid,please check request",HttpStatus.BAD_REQUEST);
     }
 
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<String> NoSuchElementExceptionException(RuntimeException ex) {
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(NoProductFoundException.class)
+    public ResponseEntity<ErrorDetails> noProductFoundExceptionException(NoProductFoundException ex) {
 
-        return new ResponseEntity<String>(ex.getMessage(),HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(ex.getErrorDetails(), HttpStatus.PRECONDITION_FAILED);
     }
 }
 
