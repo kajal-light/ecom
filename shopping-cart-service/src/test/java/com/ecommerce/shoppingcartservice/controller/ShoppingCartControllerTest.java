@@ -3,7 +3,6 @@ package com.ecommerce.shoppingcartservice.controller;
 import com.ecommerce.dto.PaymentResponse;
 import com.ecommerce.dto.PaymentStatus;
 import com.ecommerce.dto.PaymentType;
-import com.ecommerce.dto.ProductsDto;
 import com.ecommerce.shoppingcartservice.service.CartService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

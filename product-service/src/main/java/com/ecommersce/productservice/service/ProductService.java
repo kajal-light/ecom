@@ -1,6 +1,6 @@
 package com.ecommersce.productservice.service;
 
-import com.ecommerce.dto.ProductsDto;
+import com.ecommerce.dto.ProductDTO;
 
 import org.springframework.stereotype.Service;
 
@@ -8,22 +8,22 @@ import java.util.List;
 
 @Service
 public interface ProductService {
-    String createProduct(ProductsDto data) throws RuntimeException;
+    String createProduct(ProductDTO data) throws RuntimeException;
 
-    void createListOfProduct(List<ProductsDto> data);
+    void createListOfProduct(List<ProductDTO> data);
 
-    void updateProduct(String productId, ProductsDto productsDto) ;
+    void updateProduct(String productId, ProductDTO productDTO) ;
 
     void deleteProduct(String productId);
 
-    ProductsDto getProductByProductId(String productId) ;
+    ProductDTO getProductByProductId(String productId) ;
 
-    List<ProductsDto> getProductByProductName(String name) ;
+    List<ProductDTO> getProductByProductName(String name) ;
 
-    List<ProductsDto> getProductByCategory(String category) ;
+    List<ProductDTO> getProductByCategory(String category) ;
 
-    List<ProductsDto> getProductByPrice(Double minPrice, Double maxPrice) ;
-    List<ProductsDto> getProductByRating(Double rating) ;
+    List<ProductDTO> getProductByPrice(Double minPrice, Double maxPrice) ;
+    List<ProductDTO> getProductByRating(Double rating) ;
 
-    List<ProductsDto> getListOfStock(List<String> productsId) ;
+    List<ProductDTO> getListOfStock(List<String> productsId) ;
 }

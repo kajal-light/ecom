@@ -5,10 +5,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(HttpStatus.PRECONDITION_FAILED)
-public class InsufficientBalanceException extends RuntimeException {
+public class NoProductFoundException extends RuntimeException {
     private final ErrorDetails errorDetails;
 
-    public InsufficientBalanceException(ErrorDetails errorDetails) {
+    public NoProductFoundException(ErrorDetails errorDetails) {
         super();
         this.errorDetails = errorDetails;
     }
@@ -17,3 +17,4 @@ public class InsufficientBalanceException extends RuntimeException {
         return errorDetails;
     }
 }
+

@@ -7,10 +7,9 @@ import lombok.NoArgsConstructor;
 import java.io.Serializable;
 
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
-public class ProductInformation implements Serializable {
-
+@AllArgsConstructor
+public class OrderedProductDTO implements Serializable {
     private String productId;
     private Double productPrice;
     private Integer productQuantity;

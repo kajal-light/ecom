@@ -1,16 +1,17 @@
 package com.exception;
 
+import com.exception.model.ErrorDetails;
+
 public class OutOfStockException extends RuntimeException {
-    private final String errorCode;
+    private final ErrorDetails errorDetails;
 
-
-    public OutOfStockException(String errorCode, String message) {
-        super(message);
-        this.errorCode = errorCode;
+    public OutOfStockException(ErrorDetails errorDetails) {
+        super();
+        this.errorDetails = errorDetails;
     }
 
-    public String getErrorCode() {
-        return errorCode;
+    public ErrorDetails getErrorDetails() {
+        return errorDetails;
     }
 }
 

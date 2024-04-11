@@ -1,29 +1,22 @@
 package com.exception.model;
 
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.http.HttpStatus;
 
 import java.util.Arrays;
 import java.util.List;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class ErrorDetails {
     private HttpStatus status;
     private String code;
-    private List<String> errors;
+    private String message;
+    private String source;
 
-    public ErrorDetails(HttpStatus status, String code, List<String> errors) {
-        super();
-        this.status = status;
-        this.code = code;
-        this.errors = errors;
-    }
-
-    public ErrorDetails(HttpStatus status, String code, String error) {
-        super();
-        this.status = status;
-        this.code = code;
-        errors = Arrays.asList(error);
-    }
 }

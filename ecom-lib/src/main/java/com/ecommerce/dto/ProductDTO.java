@@ -5,12 +5,18 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
+import java.time.LocalDate;
 
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
-public class ProductDTO  implements Serializable {
+@NoArgsConstructor
+public class ProductDTO implements Serializable {
     private String productId;
+    private String productName;
+    private String category;
     private Double productPrice;
-    private Integer productQuantity;
+    private LocalDate date;
+    private Double rating;
+    private Integer stock;
+
 }

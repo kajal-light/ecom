@@ -2,14 +2,13 @@ package com.ecommerce.orderservice.controller;
 
 import com.ecommerce.dto.OrderServiceRequestDTO;
 import com.ecommerce.dto.PaymentResponse;
-import com.ecommerce.dto.ProductDTO;
+import com.ecommerce.dto.OrderedProductDTO;
 import com.ecommerce.orderservice.service.OrderService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.HttpStatus;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -32,12 +31,12 @@ import java.util.List;
        response.setOrderAmount(String.valueOf(246.00));
        response.setUserId(UserId);
 
-       ProductDTO productDTO=new ProductDTO();
-       productDTO.setProductId("dhdh");
-       productDTO.setProductPrice(2344.0);
+       OrderedProductDTO orderedProductDTO =new OrderedProductDTO();
+       orderedProductDTO.setProductId("dhdh");
+       orderedProductDTO.setProductPrice(2344.0);
 
-       List<ProductDTO> listOfProduct=new ArrayList<>();
-       listOfProduct.add(productDTO);
+       List<OrderedProductDTO> listOfProduct=new ArrayList<>();
+       listOfProduct.add(orderedProductDTO);
        OrderServiceRequestDTO request=new OrderServiceRequestDTO();
        request.setProducts(listOfProduct);
        request.setUserId(UserId);

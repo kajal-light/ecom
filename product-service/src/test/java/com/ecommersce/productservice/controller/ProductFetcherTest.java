@@ -1,6 +1,6 @@
 package com.ecommersce.productservice.controller;
 
-import com.ecommerce.dto.ProductsDto;
+import com.ecommerce.dto.ProductDTO;
 import com.ecommersce.productservice.service.ProductService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -30,11 +30,11 @@ import static org.mockito.Mockito.when;
 
     @Test
     void getProduct(){
-        ProductsDto request=getProductsDto();
-        ProductsDto response= getProductsDtoResponse();
+        ProductDTO request=getProductsDto();
+        ProductDTO response= getProductsDtoResponse();
         response.setDate(LocalDate.now());
         when( productService.getProductByProductId("shdddbhd")).thenReturn(response);
-        ResponseEntity<ProductsDto> responseEntity=productFetcher.getProductByProductId("shdddbhd");
+        ResponseEntity<ProductDTO> responseEntity=productFetcher.getProductByProductId("shdddbhd");
         Assertions.assertEquals(request, responseEntity.getBody());
 
     }
@@ -42,79 +42,79 @@ import static org.mockito.Mockito.when;
 
     @Test
     void getProductByName(){
-        ProductsDto request=getProductsDto();
-        ProductsDto response= getProductsDtoResponse();
-        List<ProductsDto> listOfProducts=new ArrayList<>();
+        ProductDTO request=getProductsDto();
+        ProductDTO response= getProductsDtoResponse();
+        List<ProductDTO> listOfProducts=new ArrayList<>();
         listOfProducts.add(request);
 
         response.setDate(LocalDate.now());
         when( productService.getProductByProductName(request.getProductName())).thenReturn(listOfProducts);
-        ResponseEntity<List<ProductsDto>> responseEntity=productFetcher.getProductByProductName(request.getProductName());
+        ResponseEntity<List<ProductDTO>> responseEntity=productFetcher.getProductByProductName(request.getProductName());
         Assertions.assertEquals(request, Objects.requireNonNull(responseEntity.getBody()).get(0));
 
     }
     @Test
     void getProductByCategory(){
-        ProductsDto request=getProductsDto();
-        ProductsDto response= getProductsDtoResponse();
-        List<ProductsDto> listOfProducts=new ArrayList<>();
+        ProductDTO request=getProductsDto();
+        ProductDTO response= getProductsDtoResponse();
+        List<ProductDTO> listOfProducts=new ArrayList<>();
         listOfProducts.add(request);
 
         response.setDate(LocalDate.now());
         when( productService.getProductByCategory(request.getCategory())).thenReturn(listOfProducts);
-        ResponseEntity<List<ProductsDto>> responseEntity=productFetcher.getProductByCategory(request.getCategory());
+        ResponseEntity<List<ProductDTO>> responseEntity=productFetcher.getProductByCategory(request.getCategory());
         Assertions.assertEquals(request, Objects.requireNonNull(responseEntity.getBody()).get(0));
 
     }
     @Test
     void getProductByPrice(){
-        ProductsDto request=getProductsDto();
-        ProductsDto response= getProductsDtoResponse();
-        List<ProductsDto> listOfProducts=new ArrayList<>();
+        ProductDTO request=getProductsDto();
+        ProductDTO response= getProductsDtoResponse();
+        List<ProductDTO> listOfProducts=new ArrayList<>();
         listOfProducts.add(request);
 
         response.setDate(LocalDate.now());
         when( productService.getProductByPrice(23.44,34.0)).thenReturn(listOfProducts);
-        ResponseEntity<List<ProductsDto>> responseEntity=productFetcher.getProductByPrice(23.44,34.0);
+        ResponseEntity<List<ProductDTO>> responseEntity=productFetcher.getProductByPrice(23.44,34.0);
         Assertions.assertEquals(request, Objects.requireNonNull(responseEntity.getBody()).get(0));
 
     }
 
     @Test
     void getProductByRating(){
-        ProductsDto request=getProductsDto();
-        ProductsDto response= getProductsDtoResponse();
-        List<ProductsDto> listOfProducts=new ArrayList<>();
+        ProductDTO request=getProductsDto();
+        ProductDTO response= getProductsDtoResponse();
+        List<ProductDTO> listOfProducts=new ArrayList<>();
         listOfProducts.add(request);
 
         response.setDate(LocalDate.now());
         when( productService.getProductByRating(4.0)).thenReturn(listOfProducts);
-        ResponseEntity<List<ProductsDto>> responseEntity=productFetcher.getProductByRating(4.0);
+        ResponseEntity<List<ProductDTO>> responseEntity=productFetcher.getProductByRating(4.0);
         Assertions.assertEquals(request, responseEntity.getBody().get(0));
 
     }
 
 
-    private ProductsDto getProductsDtoResponse() {
-        ProductsDto productsDto=new ProductsDto();
-        productsDto.setProductId("shdddbhd");
-        productsDto.setProductName("laptop");
-        productsDto.setProductPrice(2300.5);
-        productsDto.setStock(1000);
-        productsDto.setDate(LocalDate.now());
+    private ProductDTO getProductsDtoResponse() {
+        ProductDTO productDTO =new ProductDTO();
+        productDTO.setProductId("shdddbhd");
+        productDTO.setProductName("laptop");
+        productDTO.setProductPrice(2300.5);
+        productDTO.setStock(1000);
+        productDTO.setDate(LocalDate.now());
 
-        return productsDto;
+        return productDTO;
     }
 
-    private ProductsDto getProductsDto() {
-        ProductsDto productsDto=new ProductsDto();
-        productsDto.setProductId("shdddbhd");
-        productsDto.setProductName("laptop");
-        productsDto.setProductPrice(2300.5);
-        productsDto.setStock(1000);
-        productsDto.setDate(LocalDate.now());
+    private ProductDTO getProductsDto() {
+        ProductDTO productDTO =new ProductDTO();
+        productDTO.setProductId("shdddbhd");
+        productDTO.setProductName("laptop");
+        productDTO.setProductPrice(2300.5);
+        productDTO.setStock(1000);
+        productDTO.setDate(LocalDate.now());
 
-        return productsDto;
+        return productDTO;
     }
 
 

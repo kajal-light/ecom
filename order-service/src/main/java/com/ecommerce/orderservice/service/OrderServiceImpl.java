@@ -43,8 +43,8 @@ public class OrderServiceImpl implements OrderService {
 
         PaymentResponse paymentResponse=new PaymentResponse();
 
-        List<ProductDTO> products = orderServiceRequestDTO.getProducts();
-        List<String> productIds = products.stream().map(ProductDTO::getProductId).collect(Collectors.toList());
+        List<OrderedProductDTO> products = orderServiceRequestDTO.getProducts();
+        List<String> productIds = products.stream().map(OrderedProductDTO::getProductId).collect(Collectors.toList());
 
         //making call to product service to fetch stocks for their respective products Id
        try {

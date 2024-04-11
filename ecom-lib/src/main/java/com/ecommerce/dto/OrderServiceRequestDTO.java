@@ -13,7 +13,7 @@ import java.util.List;
 public class OrderServiceRequestDTO implements Serializable {
 
 
-    private List<ProductDTO> products;
+    private List<OrderedProductDTO> products;
     private Double totalAmount;
     private String userId;
 

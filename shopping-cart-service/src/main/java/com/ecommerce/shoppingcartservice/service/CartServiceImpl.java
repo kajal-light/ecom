@@ -38,7 +38,7 @@ public class CartServiceImpl implements CartService {
         String url = "http://localhost:8080/product-service/retrieveProductById/productId/{productId}";
 
         try {
-            ProductsDto product = restTemplate.getForObject(url, ProductsDto.class, productId);
+            ProductDTO product = restTemplate.getForObject(url, ProductDTO.class, productId);
             assert product != null;
             double totalPrice = product.getProductPrice() * quantity;
 
@@ -72,7 +72,7 @@ public class CartServiceImpl implements CartService {
         try {
             if(userId==null){
 
-                throw new EmptyInputException("SH_03","userId should not be null");
+                throw new EmptyInputException("SH_03","userId should not be null", errorDetails);
             }
             double totalAmountOfUserOrder = shoppingCartRepository.findAmountByUserId(userId);
 
@@ -101,21 +101,21 @@ public class CartServiceImpl implements CartService {
 
 
         OrderServiceRequestDTO request = new OrderServiceRequestDTO();
-        List<ProductDTO> productDTOs = new ArrayList<>();
+        List<OrderedProductDTO> orderedProductDTOS = new ArrayList<>();
 
 if(!listItemsInBag.isEmpty()) {
     for (ShoppingBag itemInBag : listItemsInBag) {
-        ProductDTO productDetail = new ProductDTO();
+        OrderedProductDTO productDetail = new OrderedProductDTO();
         productDetail.setProductPrice(itemInBag.getProductPrice());
         productDetail.setProductId(itemInBag.getProductId());
         productDetail.setProductQuantity(itemInBag.getQuantity());
-        productDTOs.add(productDetail);
+        orderedProductDTOS.add(productDetail);
     }
 }else{
 
     throw new NoSuchElementException("No data present for given UserId");
 }
-        request.setProducts(productDTOs);
+        request.setProducts(orderedProductDTOS);
         if(totalAmountOfUserOrder!=0) {
             request.setTotalAmount(totalAmountOfUserOrder);
         }

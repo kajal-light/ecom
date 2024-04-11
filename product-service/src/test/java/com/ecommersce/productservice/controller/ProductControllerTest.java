@@ -1,6 +1,6 @@
 package com.ecommersce.productservice.controller;
 
-import com.ecommerce.dto.ProductsDto;
+import com.ecommerce.dto.ProductDTO;
 
 import com.ecommersce.productservice.service.ProductService;
 import org.junit.jupiter.api.Assertions;
@@ -31,25 +31,25 @@ class ProductControllerTest {
 
     @Test
     void createProduct(){
-        ProductsDto productsDto=getProductsDto();
-        ResponseEntity<String> response = productController.createProduct(productsDto);
+        ProductDTO productDTO =getProductsDto();
+        ResponseEntity<String> response = productController.createProduct(productDTO);
         Assertions.assertEquals(HttpStatus.CREATED, response.getStatusCode());
 
     }
 
     @Test
     void createListOfProduct(){
-        ProductsDto productsDto=getProductsDto();
-        List<ProductsDto> listOfProduct=new ArrayList<>();
-        listOfProduct.add(productsDto);
+        ProductDTO productDTO =getProductsDto();
+        List<ProductDTO> listOfProduct=new ArrayList<>();
+        listOfProduct.add(productDTO);
         ResponseEntity<String> response = productController.createListOfProduct(listOfProduct);
         Assertions.assertEquals(HttpStatus.CREATED, response.getStatusCode());
 
     }
     @Test
     void updateProduct(){
-        ProductsDto productsDto=getProductsDto();
-        ResponseEntity<String> response = productController.updateProduct("1234dfgh" ,productsDto);
+        ProductDTO productDTO =getProductsDto();
+        ResponseEntity<String> response = productController.updateProduct("1234dfgh" , productDTO);
         Assertions.assertEquals(HttpStatus.CREATED, response.getStatusCode());
 
     }
@@ -60,15 +60,15 @@ class ProductControllerTest {
 
     }
 
-    private ProductsDto getProductsDto() {
-        ProductsDto productsDto=new ProductsDto();
-        productsDto.setProductId("jdgddb");
-        productsDto.setProductName("laptop");
-        productsDto.setProductPrice(23400.0);
-        productsDto.setStock(1000);
-        productsDto.setDate(LocalDate.now());
+    private ProductDTO getProductsDto() {
+        ProductDTO productDTO =new ProductDTO();
+        productDTO.setProductId("jdgddb");
+        productDTO.setProductName("laptop");
+        productDTO.setProductPrice(23400.0);
+        productDTO.setStock(1000);
+        productDTO.setDate(LocalDate.now());
 
-        return productsDto;
+        return productDTO;
     }
 
 

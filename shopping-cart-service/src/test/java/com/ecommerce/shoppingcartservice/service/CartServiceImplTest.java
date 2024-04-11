@@ -1,8 +1,7 @@
 package com.ecommerce.shoppingcartservice.service;
 
-import com.ecommerce.dto.ProductsDto;
+import com.ecommerce.dto.ProductDTO;
 import com.ecommerce.entity.ShoppingBag;
-import com.ecommerce.shoppingcartservice.controller.ShoppingCartController;
 import com.ecommerce.shoppingcartservice.dao.ShoppingCartRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -33,7 +32,7 @@ public class CartServiceImplTest {
     int quantity=4;
     String userId="hshdd";
 
-    ProductsDto product=getProductDtoResponse();
+    ProductDTO product=getProductDtoResponse();
     double totalPrice = product.getProductPrice() * quantity;
     ShoppingBag item = new ShoppingBag();
     item.setCreatedAt(LocalDate.now());
@@ -42,7 +41,7 @@ public class CartServiceImplTest {
     item.setProductId("jdfhf");
     item.setQuantity(quantity);
     item.setUserId(userId);
-    when(restTemplate.getForObject(Mockito.anyString(), ProductsDto.class, "jdfhf")).thenReturn(product);
+    when(restTemplate.getForObject(Mockito.anyString(), ProductDTO.class, "jdfhf")).thenReturn(product);
     when(shoppingCartRepository.save(item)).thenReturn(item);
     cartServiceImpl.addCartItem(userId,"jdfhf",quantity);
     Assertions.assertNotNull(item);
@@ -58,8 +57,8 @@ void deleteCartItem(){
     when(shoppingCartRepository.findById(bag.getCartItemId())).thenReturn(Optional.of(bag));
     Assertions.assertNotNull(bag);
 }
-    private ProductsDto getProductDtoResponse() {
-        ProductsDto response=new ProductsDto();
+    private ProductDTO getProductDtoResponse() {
+        ProductDTO response=new ProductDTO();
         response.setProductId("jdfhf");
         response.setDate(LocalDate.now());
         response.setProductPrice(234.00);
