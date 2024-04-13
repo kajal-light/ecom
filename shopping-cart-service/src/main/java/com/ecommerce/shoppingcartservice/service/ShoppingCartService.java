@@ -8,10 +8,9 @@ import org.springframework.stereotype.Component;
 
 @Component
 public interface ShoppingCartService {
-    ResponseEntity<EcommerceGenericResponse> addCartItem(String userId, String productId, int quantity) throws JsonProcessingException;
+    ResponseEntity<EcommerceGenericResponse> addCartItem(String userId, String productId, int quantity);
 
     String deleteCartItem(String userId, Long itemId);
-
 
     ResponseEntity<EcommerceGenericResponse>  checkOut(String userId) throws Exception;
 }

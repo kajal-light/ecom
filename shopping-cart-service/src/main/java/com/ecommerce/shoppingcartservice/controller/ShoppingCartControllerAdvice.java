@@ -18,7 +18,6 @@ public class ShoppingCartControllerAdvice {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(NoProductFoundException.class)
     public ResponseEntity<ErrorDetails> noProductFoundExceptionException(NoProductFoundException ex) {
-
         return new ResponseEntity<>(ex.getErrorDetails(), HttpStatus.PRECONDITION_FAILED);
     }
 }
