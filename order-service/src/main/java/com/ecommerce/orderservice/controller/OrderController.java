@@ -27,7 +27,7 @@ public class OrderController {
 
 
     @PostMapping("/placeOrder")
-    public ResponseEntity<EcommerceGenericResponse> placeOrder(@RequestBody OrderServiceRequestDTO orderDto) throws JsonProcessingException {
+    public ResponseEntity<EcommerceGenericResponse> placeOrder(@RequestBody OrderServiceRequestDTO orderDto) {
 
 
             return orderService.placeOrder(orderDto);

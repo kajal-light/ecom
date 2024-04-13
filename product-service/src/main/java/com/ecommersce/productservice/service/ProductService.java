@@ -4,13 +4,14 @@ import com.ecommerce.dto.ProductData;
 import com.ecommerce.dto.ProductRequest;
 import com.ecommerce.dto.ProductResponse;
 
+import com.ecommerce.exception.InvalidProductException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
 public interface ProductService {
-    String createProduct(ProductRequest data) throws RuntimeException;
+    String createProduct(ProductRequest data) throws InvalidProductException;
 
     void createListOfProduct(List<ProductRequest> data);
 

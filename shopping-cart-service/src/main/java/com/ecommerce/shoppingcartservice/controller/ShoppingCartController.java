@@ -33,8 +33,6 @@ public ResponseEntity<EcommerceGenericResponse> addCartItem(@PathVariable String
 
     @DeleteMapping("/deleteCartItem/userId/{userId}/itemId/{itemId}")
     public ResponseEntity<String> deleteCartItem(@PathVariable String userId,@PathVariable Long itemId){
-
-       ;
         return new ResponseEntity<>( shoppingCartService.deleteCartItem(userId,itemId),HttpStatus.OK);
 
     }

@@ -6,7 +6,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import lombok.Data;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 

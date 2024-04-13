@@ -13,7 +13,7 @@ public class PaymentControllerAdvice {
 
     @ResponseStatus(HttpStatus.EXPECTATION_FAILED)
     @ExceptionHandler(InsufficientBalanceException.class)
-    public ResponseEntity<ErrorDetails> InsufficientBalanceException(InsufficientBalanceException ex) {
+    public ResponseEntity<ErrorDetails> handleInsufficientBalanceException(InsufficientBalanceException ex) {
 
         return new ResponseEntity<>(ex.getErrorDetails(), HttpStatus.PRECONDITION_FAILED);
     }

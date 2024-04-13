@@ -1,6 +1,5 @@
 package com.ecommerce.entity;
 
-import com.ecommerce.dto.PaymentStatus;
 import com.ecommerce.dto.PaymentType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
