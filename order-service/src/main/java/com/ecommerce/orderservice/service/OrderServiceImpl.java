@@ -24,7 +24,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.ArrayList;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Slf4j
@@ -40,11 +40,56 @@ public class OrderServiceImpl implements OrderService {
     @Value("${payment.service.url}")
     private String paymentService;
 
-    private static boolean isProductOutOfStock(List<OrderedProductDTO> products, List<ProductData> productsInventory) {
-        boolean productOutOfStock;
-        //
-        productOutOfStock = products.stream()
-                .noneMatch(productInventory -> {
+
+    @Override
+    @CircuitBreaker(name = "processPayment", fallbackMethod = "processPaymentFallback")
+    @Transactional
+    public ResponseEntity<EcommerceGenericResponse> placeOrder(OrderServiceRequestDTO orderServiceRequestDTO) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        PaymentResponse response = new PaymentResponse();
+        try {
+            List<OrderedProductDTO> products = orderServiceRequestDTO.getProducts();
+            List<String> productIds = products.stream().map(OrderedProductDTO::getProductId).toList();
+            //making call to product service to fetch stocks for their respective products Id
+            List<ProductData> stockList = callProductService(productIds, headers);
+            List<String> outOfStockProductIds = isProductOutOfStock(products, stockList);
+            //todo: productOutOfStock variable name hoga ya instock?
+            if (!outOfStockProductIds.isEmpty()) {
+                saveOrderRecord(orderServiceRequestDTO, productIds);
+                response = callPaymentService(orderServiceRequestDTO, headers);
+                return new ResponseEntity<>(response, HttpStatus.CREATED);
+            } else {
+                throw new OutOfStockException(new ErrorDetails(HttpStatus.CONFLICT, OrderServiceConstants.PRODUCT_OUT_OF_STOCK_MESSAGE + ":" + outOfStockProductIds, OrderServiceConstants.PRODUCT_OUT_OF_STOCK_CODE, OrderServiceConstants.SERVICE_NAME, LocalDateTime.now().toString()));
+            }
+
+        } catch (JsonProcessingException | NoProductFoundException e) {
+            log.error(e.getMessage());
+            throw new NoProductFoundException(new ErrorDetails(HttpStatus.BAD_REQUEST, OrderServiceConstants.INVALID_PRODUCT_REQUEST_MESSAGE, OrderServiceConstants.INVALID_PRODUCT_REQUEST_CODE, OrderServiceConstants.SERVICE_NAME, LocalDateTime.now().toString()));
+        } catch (HttpStatusCodeException e) {
+            log.error(e.getMessage());
+            String ed = e.getResponseBodyAsString();
+            ErrorDetails errorDetails = null;
+            try {
+                errorDetails = mapper.readValue(ed, ErrorDetails.class);
+            } catch (JsonProcessingException jsonProcessingException) {
+                log.error(jsonProcessingException.getMessage());
+                throw new NoProductFoundException(new ErrorDetails(HttpStatus.BAD_REQUEST, OrderServiceConstants.INVALID_PRODUCT_REQUEST_MESSAGE, OrderServiceConstants.INVALID_PRODUCT_REQUEST_CODE, OrderServiceConstants.SERVICE_NAME, LocalDateTime.now().toString()));
+
+            }
+            return new ResponseEntity<>(errorDetails, HttpStatus.PRECONDITION_FAILED);
+        } catch (OutOfStockException e) {
+            log.error(e.getMessage());
+            throw new OutOfStockException(new ErrorDetails(HttpStatus.BAD_REQUEST, OrderServiceConstants.PRODUCT_OUT_OF_STOCK_MESSAGE, OrderServiceConstants.PRODUCT_OUT_OF_STOCK_CODE, OrderServiceConstants.SERVICE_NAME, LocalDateTime.now().toString()));
+
+        }
+
+
+    }
+
+    private List<String> isProductOutOfStock(List<OrderedProductDTO> products, List<ProductData> productsInventory) {
+        return products.stream()
+                .filter(productInventory -> {
                     String productId = productInventory.getProductId();
                     int orderQuantity = productInventory.getProductQuantity();
                     int stock = productsInventory.stream()
@@ -53,90 +98,51 @@ public class OrderServiceImpl implements OrderService {
                             .findFirst()
                             .orElse(0);
                     return stock == 0 || stock - orderQuantity < 0;
-                });
+                }).map(OrderedProductDTO::getProductId)
+                .toList();
 
-        return productOutOfStock;
     }
 
-    @Override
-    @CircuitBreaker(name = "processPayment", fallbackMethod = "processPaymentFallback")
-    @Transactional
-    public ResponseEntity<EcommerceGenericResponse> placeOrder(OrderServiceRequestDTO orderServiceRequestDTO) throws JsonProcessingException {
+    private void saveOrderRecord(OrderServiceRequestDTO orderServiceRequestDTO, List<String> productIds) {
+        ProductOrder productOrder = new ProductOrder();
+        productOrder.setProductId(productIds);
+        productOrder.setTotalAmount(orderServiceRequestDTO.getTotalAmount());
+        productOrder.setUserId(orderServiceRequestDTO.getUserId());
+        orderRepository.save(productOrder);
+    }
 
+    private List<ProductData> callProductService(List<String> productIds, HttpHeaders headers) {
         try {
-            PaymentResponse response = null;
-            List<OrderedProductDTO> products = orderServiceRequestDTO.getProducts();
-            List<String> productIds = products.stream().map(OrderedProductDTO::getProductId).toList();
-            boolean productOutOfStock;
-            //making call to product service to fetch stocks for their respective products Id
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
             HttpEntity<List<String>> requestProductIds = new HttpEntity<>(productIds, headers);
             ResponseEntity<JsonNode> responseEntity = restTemplate.exchange(productService, HttpMethod.POST, requestProductIds, JsonNode.class);
             String jsonResponse = mapper.writeValueAsString(responseEntity.getBody());
-            List<ProductData> stockList = mapper.readValue(jsonResponse, new TypeReference<>() {
+            return mapper.readValue(jsonResponse, new TypeReference<>() {
             });
-            productOutOfStock = isProductOutOfStock(products, stockList);
-
-
-            if (productOutOfStock) {
-
-                ProductOrder productOrder = new ProductOrder();
-
-                productOrder.setProductId(productIds);
-                productOrder.setTotalAmount(orderServiceRequestDTO.getTotalAmount());
-                productOrder.setUserId(orderServiceRequestDTO.getUserId());
-                orderRepository.save(productOrder);
-
-                PaymentRequest paymentRequest = new PaymentRequest();
-                paymentRequest.setPaymentMethod(PaymentType.CREDIT_CARD);
-                paymentRequest.setOrderAmount(BigDecimal.valueOf(orderServiceRequestDTO.getTotalAmount()));
-                paymentRequest.setDateOfOrder(LocalDate.now().atStartOfDay());
-                paymentRequest.setUserId(orderServiceRequestDTO.getUserId());
-                log.info("Making a call to payment service ");
-                callPaymentService(paymentRequest, headers, response);
-                log.info("payment service call completed");
-            } else {
-                throw new OutOfStockException(new ErrorDetails(HttpStatus.CONFLICT, OrderServiceConstants.PRODUCT_OUT_OF_STOCK_MESSAGE, OrderServiceConstants.PRODUCT_OUT_OF_STOCK_CODE, OrderServiceConstants.SERVICE_NAME, ""));
-            }
-            return new ResponseEntity<>(response, HttpStatus.CREATED);
-        } catch (HttpStatusCodeException e) {
-            log.error(e.getMessage());
-            String ed = e.getResponseBodyAsString();
-
-            ErrorDetails errorDetails = mapper.readValue(ed, ErrorDetails.class);
-            return new ResponseEntity<>(errorDetails, HttpStatus.PRECONDITION_FAILED);
-        } catch (NoProductFoundException e) {
-            log.error(e.getMessage());
-            throw new NoProductFoundException(
-                    new ErrorDetails(HttpStatus.BAD_REQUEST, OrderServiceConstants.INVALID_PRODUCT_REQUEST_MESSAGE, OrderServiceConstants.INVALID_PRODUCT_REQUEST_CODE, OrderServiceConstants.SERVICE_NAME, ""));
-
-        } catch (OutOfStockException e) {
-            log.error(e.getMessage());
-            throw new OutOfStockException(new ErrorDetails(HttpStatus.BAD_REQUEST, OrderServiceConstants.PRODUCT_OUT_OF_STOCK_MESSAGE, OrderServiceConstants.PRODUCT_OUT_OF_STOCK_CODE, OrderServiceConstants.SERVICE_NAME, ""));
-
+        } catch (JsonProcessingException e) {
+            throw new NoProductFoundException(new ErrorDetails(HttpStatus.NO_CONTENT, OrderServiceConstants.INVALID_PRODUCT_REQUEST_CODE, OrderServiceConstants.PRODUCT_SERVICE_INVALID_RESPONSE_FOUND_MESSAGE, OrderServiceConstants.SERVICE_NAME, LocalDateTime.now().toString()));
         }
-
 
     }
 
-    private void callPaymentService(PaymentRequest paymentRequest, HttpHeaders headers, PaymentResponse productResponse) throws JsonProcessingException {
+    private PaymentResponse callPaymentService(OrderServiceRequestDTO orderServiceRequestDTO, HttpHeaders headers) throws JsonProcessingException {
+        PaymentRequest paymentRequest = new PaymentRequest();
+        paymentRequest.setPaymentMethod(PaymentType.CREDIT_CARD);
+        paymentRequest.setOrderAmount(BigDecimal.valueOf(orderServiceRequestDTO.getTotalAmount()));
+        paymentRequest.setDateOfOrder(LocalDate.now().atStartOfDay());
+        paymentRequest.setUserId(orderServiceRequestDTO.getUserId());
         HttpEntity<PaymentRequest> paymentRequestEntity;
         paymentRequestEntity = new HttpEntity<>(paymentRequest, headers);
+        log.info("Making a call to payment service ");
         ResponseEntity<JsonNode> paymentJson = restTemplate.exchange(paymentService, HttpMethod.POST, paymentRequestEntity, JsonNode.class);
-
-
+        log.info("payment service call completed");
         mapper.registerModule(new JavaTimeModule());
         String jsonPaymentResponse = mapper.writeValueAsString(paymentJson.getBody());
-
-//todo: why?
-        productResponse = mapper.readValue(jsonPaymentResponse, PaymentResponse.class);
-
+        return mapper.readValue(jsonPaymentResponse, PaymentResponse.class);
 
     }
 
     //todo: implement fallback method
-    public String processPaymentFallback(Exception e) {
+    public String processPaymentFallback() {
 
 
         return "SERVICE IS DOWN, PLEASE TRY AFTER SOMETIME !!!";
