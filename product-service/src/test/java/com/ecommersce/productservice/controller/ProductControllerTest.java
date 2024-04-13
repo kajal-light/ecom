@@ -1,5 +1,6 @@
 package com.ecommersce.productservice.controller;
 
+import com.ecommerce.dto.ProductRequest;
 import com.ecommerce.dto.ProductResponse;
 
 import com.ecommersce.productservice.service.ProductService;
@@ -31,25 +32,25 @@ class ProductControllerTest {
 
     @Test
     void createProduct(){
-        ProductResponse productResponse =getProductsDto();
-        ResponseEntity<String> response = productController.createProduct(productResponse);
+        ProductRequest productRequest =getProductsDto();
+        ResponseEntity<String> response = productController.createProduct(productRequest);
         Assertions.assertEquals(HttpStatus.CREATED, response.getStatusCode());
 
     }
 
     @Test
     void createListOfProduct(){
-        ProductResponse productResponse =getProductsDto();
-        List<ProductResponse> listOfProduct=new ArrayList<>();
-        listOfProduct.add(productResponse);
+        ProductRequest productRequest =getProductsDto();
+        List<ProductRequest> listOfProduct=new ArrayList<>();
+        listOfProduct.add(productRequest);
         ResponseEntity<String> response = productController.createListOfProduct(listOfProduct);
         Assertions.assertEquals(HttpStatus.CREATED, response.getStatusCode());
 
     }
     @Test
     void updateProduct(){
-        ProductResponse productResponse =getProductsDto();
-        ResponseEntity<String> response = productController.updateProduct("1234dfgh" , productResponse);
+        ProductRequest productRequest =getProductsDto();
+        ResponseEntity<String> response = productController.updateProduct("1234dfgh" , productRequest);
         Assertions.assertEquals(HttpStatus.CREATED, response.getStatusCode());
 
     }
@@ -60,15 +61,15 @@ class ProductControllerTest {
 
     }
 
-    private ProductResponse getProductsDto() {
-        ProductResponse productResponse =new ProductResponse();
-        productResponse.setProductId("jdgddb");
-        productResponse.setProductName("laptop");
-        productResponse.setProductPrice(23400.0);
-        productResponse.setStock(1000);
-        productResponse.setDate(LocalDate.now());
+    private ProductRequest getProductsDto() {
+        ProductRequest productRequest =new ProductRequest();
+        productRequest.setProductId("jdgddb");
+        productRequest.setProductName("laptop");
+        productRequest.setProductPrice(23400.0);
+        productRequest.setStock(1000);
+        productRequest.setDate(LocalDate.now());
 
-        return productResponse;
+        return productRequest;
     }
 
 
