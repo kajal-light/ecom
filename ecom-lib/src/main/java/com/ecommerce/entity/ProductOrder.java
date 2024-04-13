@@ -2,21 +2,24 @@ package com.ecommerce.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 
 @Data
 @Entity
 public class ProductOrder {
     @Id
-    private String orderId;
+    @GeneratedValue
+    private Integer orderId;
     @Column
-    private String productId;
+    private List<String> productId;
     @Column
-    private BigDecimal totalAmount;
+    private Double totalAmount;
     @Column
     private String userId;
 

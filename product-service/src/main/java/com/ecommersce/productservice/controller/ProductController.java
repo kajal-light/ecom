@@ -1,7 +1,9 @@
 package com.ecommersce.productservice.controller;
 
 
-import com.ecommerce.dto.ProductDTO;
+import com.ecommerce.dto.ProductData;
+import com.ecommerce.dto.ProductRequest;
+import com.ecommerce.dto.ProductResponse;
 import com.ecommersce.productservice.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -23,24 +25,24 @@ public class ProductController {
     }
 
     @PostMapping("/createProduct")
-    public ResponseEntity<String> createProduct(@RequestBody ProductDTO data) {
+    public ResponseEntity<String> createProduct(@RequestBody ProductRequest productRequest) {
 
-        return new ResponseEntity<>(productService.createProduct(data), HttpStatus.CREATED);
+        return new ResponseEntity<>(productService.createProduct(productRequest), HttpStatus.CREATED);
 
     }
 
     @PostMapping("/createsProducts")
-    public ResponseEntity<String> createListOfProduct(@RequestBody List<ProductDTO> data) {
+    public ResponseEntity<String> createListOfProduct(@RequestBody List<ProductRequest> productRequest) {
 
-        productService.createListOfProduct(data);
+        productService.createListOfProduct(productRequest);
         return new ResponseEntity<>("List of Products is inserted successfully", HttpStatus.CREATED);
 
     }
 
     @PutMapping("/updateProducts/productId/{productId}")
-    public ResponseEntity<String> updateProduct(@PathVariable String productId, @RequestBody ProductDTO productDTO) {
+    public ResponseEntity<String> updateProduct(@PathVariable String productId, @RequestBody ProductRequest productRequest) {
 
-        productService.updateProduct(productId, productDTO);
+        productService.updateProduct(productId, productRequest);
         return new ResponseEntity<>("Updated successfully", HttpStatus.CREATED);
 
     }
@@ -55,7 +57,7 @@ public class ProductController {
     }
 
     @PostMapping("/fetchStock")
-    public ResponseEntity<List<ProductDTO>> getListOfStock(@RequestBody List<String> productsId) {
+    public ResponseEntity<List<ProductData>> getListOfStock(@RequestBody List<String> productsId) {
 
         return ResponseEntity.ok(productService.getListOfStock(productsId));
     }

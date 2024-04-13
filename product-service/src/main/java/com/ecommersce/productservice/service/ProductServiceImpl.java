@@ -1,13 +1,15 @@
 package com.ecommersce.productservice.service;
 
-import com.ecommerce.dto.ProductDTO;
+import com.ecommerce.dto.ProductData;
+import com.ecommerce.dto.ProductRequest;
+import com.ecommerce.dto.ProductResponse;
 import com.ecommerce.entity.Products;
 import com.ecommersce.productservice.constants.ProductServiceConstants;
 import com.ecommersce.productservice.dao.ProductRepository;
-import com.exception.InvalidProductException;
-import com.exception.NoProductFoundException;
-import com.exception.OutOfStockException;
-import com.exception.model.ErrorDetails;
+import com.ecommerce.exception.InvalidProductException;
+import com.ecommerce.exception.NoProductFoundException;
+import com.ecommerce.exception.OutOfStockException;
+import com.ecommerce.exception.dto.ErrorDetails;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,12 +33,12 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public String createProduct(ProductDTO productDTO) {
+    public String createProduct(ProductRequest productRequest) {
 
         try {
-            validateRequestPayload(productDTO);
+            validateRequestPayload(productRequest);
             Products productEntity = new Products();
-            BeanUtils.copyProperties(productDTO, productEntity);
+            BeanUtils.copyProperties(productRequest, productEntity);
             productEntity.setProductId(UUID.randomUUID().toString());
             productRepository.save(productEntity);
             return "Product added successfully ,please find the product id " + productEntity.getProductId();
@@ -49,11 +51,11 @@ public class ProductServiceImpl implements ProductService {
 
 
     @Override
-    public void createListOfProduct(List<ProductDTO> productDTO) {
+    public void createListOfProduct(List<ProductRequest> productRequest) {
 
         try {
             List<Products> productsEntity = new ArrayList<>();
-            for (ProductDTO dto : productDTO) {
+            for (ProductRequest dto : productRequest) {
                 validateRequestPayload(dto);
                 Products productEntity = new Products();
                 BeanUtils.copyProperties(dto, productEntity);
@@ -71,20 +73,20 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public void updateProduct(String productId, ProductDTO productDTO) {
+    public void updateProduct(String productId, ProductRequest productRequest) {
 
         Optional<Products> product = productRepository.findByProductId(productId);
         if (product.isPresent()) {
             Products productEntity = product.get();
-            productEntity.setProductName(productDTO.getProductName());
-            productEntity.setProductPrice(productDTO.getProductPrice());
-            productEntity.setStock(productDTO.getStock());
-            productEntity.setCategory(productDTO.getCategory());
+            productEntity.setProductName(productRequest.getProductName());
+            productEntity.setProductPrice(productRequest.getProductPrice());
+            productEntity.setStock(productRequest.getStock());
+            productEntity.setCategory(productRequest.getCategory());
             productRepository.save(productEntity);
 
         } else {
 
-            throw new NoProductFoundException(new ErrorDetails(HttpStatus.BAD_REQUEST, ProductServiceConstants.INVALID_PRODUCT_ID_CODE, ProductServiceConstants.INVALID_PRODUCT_ID_MESSAGE,ProductServiceConstants.SERVICE_NAME));
+            throw new NoProductFoundException(new ErrorDetails(HttpStatus.BAD_REQUEST, ProductServiceConstants.INVALID_PRODUCT_ID_CODE, ProductServiceConstants.INVALID_PRODUCT_ID_MESSAGE,ProductServiceConstants.SERVICE_NAME,""));
 
         }
 
@@ -99,17 +101,17 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ProductDTO getProductByProductId(String productId) {
+    public ProductResponse getProductByProductId(String productId) {
 
             Optional<Products> productEntity = productRepository.findByProductId(productId);
 
             if (productEntity.isPresent()) {
-                ProductDTO product = new ProductDTO();
+                ProductResponse product = new ProductResponse();
                 BeanUtils.copyProperties(productEntity.get(), product);
                 return product;
             } else {
 
-                throw new NoProductFoundException(new ErrorDetails(HttpStatus.BAD_REQUEST, ProductServiceConstants.INVALID_PRODUCT_ID_CODE, ProductServiceConstants.INVALID_PRODUCT_ID_MESSAGE,ProductServiceConstants.SERVICE_NAME));
+                throw new NoProductFoundException(new ErrorDetails(HttpStatus.BAD_REQUEST, ProductServiceConstants.INVALID_PRODUCT_ID_CODE, ProductServiceConstants.INVALID_PRODUCT_ID_MESSAGE,ProductServiceConstants.SERVICE_NAME,""));
             }
 
 
@@ -117,63 +119,63 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public List<ProductDTO> getProductByProductName(String name) {
+    public List<ProductResponse> getProductByProductName(String name) {
 
         List<Products> listOfProductEntity = productRepository.findByProductName(name);
         if (!listOfProductEntity.isEmpty()) {
             return listOfProductEntity.stream().map(productEntity -> {
-                ProductDTO productDTO = new ProductDTO();
-                BeanUtils.copyProperties(productEntity, productDTO);
-                return productDTO;
+                ProductResponse productResponse = new ProductResponse();
+                BeanUtils.copyProperties(productEntity, productResponse);
+                return productResponse;
             }).collect(Collectors.toList());
         } else {
-            throw new NoProductFoundException(new ErrorDetails(HttpStatus.BAD_REQUEST, ProductServiceConstants.INVALID_PRODUCT_NAME_CODE, ProductServiceConstants.INVALID_PRODUCT_NAME_MESSAGE,ProductServiceConstants.SERVICE_NAME));
+            throw new NoProductFoundException(new ErrorDetails(HttpStatus.BAD_REQUEST, ProductServiceConstants.INVALID_PRODUCT_NAME_CODE, ProductServiceConstants.INVALID_PRODUCT_NAME_MESSAGE,ProductServiceConstants.SERVICE_NAME,""));
         }
 
 
     }
 
     @Override
-    public List<ProductDTO> getProductByCategory(String category) {
+    public List<ProductResponse> getProductByCategory(String category) {
 
         List<Products> listOfProductsEntity = productRepository.findByProductCategory(category);
 
         if (!listOfProductsEntity.isEmpty()) {
             return listOfProductsEntity.stream().map(ProductsEntity -> {
-                ProductDTO productDTO = new ProductDTO();
-                BeanUtils.copyProperties(ProductsEntity, productDTO);
-                return productDTO;
+                ProductResponse productResponse = new ProductResponse();
+                BeanUtils.copyProperties(ProductsEntity, productResponse);
+                return productResponse;
             }).collect(Collectors.toList());
         } else {
 
-            throw new NoProductFoundException(new ErrorDetails(HttpStatus.BAD_REQUEST, ProductServiceConstants.INVALID_PRODUCT_CATEGORY_CODE, ProductServiceConstants.INVALID_PRODUCT_CATEGORY_MESSAGE,ProductServiceConstants.SERVICE_NAME));
+            throw new NoProductFoundException(new ErrorDetails(HttpStatus.BAD_REQUEST, ProductServiceConstants.INVALID_PRODUCT_CATEGORY_CODE, ProductServiceConstants.INVALID_PRODUCT_CATEGORY_MESSAGE,ProductServiceConstants.SERVICE_NAME,""));
         }
 
 
     }
 
     @Override
-    public List<ProductDTO> getProductByPrice(Double minPrice, Double maxPrice) {
+    public List<ProductResponse> getProductByPrice(Double minPrice, Double maxPrice) {
 
 
         List<Products> listOfProductEntity = productRepository.findByProductPriceBetween(minPrice, maxPrice);
         if (!listOfProductEntity.isEmpty()) {
 
             return listOfProductEntity.stream().map(productEntity -> {
-                ProductDTO productDto = new ProductDTO();
-                BeanUtils.copyProperties(productEntity, productDto);
-                return productDto;
+                ProductResponse productResponse = new ProductResponse();
+                BeanUtils.copyProperties(productEntity, productResponse);
+                return productResponse;
             }).collect(Collectors.toList());
         } else {
 
-            throw new NoProductFoundException(new ErrorDetails(HttpStatus.BAD_REQUEST, ProductServiceConstants.INVALID_PRODUCT_PRICE_CODE, ProductServiceConstants.INVALID_PRODUCT_PRICE_MESSAGE,ProductServiceConstants.SERVICE_NAME));
+            throw new NoProductFoundException(new ErrorDetails(HttpStatus.BAD_REQUEST, ProductServiceConstants.INVALID_PRODUCT_PRICE_CODE, ProductServiceConstants.INVALID_PRODUCT_PRICE_MESSAGE,ProductServiceConstants.SERVICE_NAME,""));
         }
 
 
     }
 
     @Override
-    public List<ProductDTO> getProductByRating(Double rating) {
+    public List<ProductResponse> getProductByRating(Double rating) {
 
         List<Products> listOfProductEntity = productRepository.findByRating(rating);
 
@@ -181,44 +183,44 @@ public class ProductServiceImpl implements ProductService {
         if (!listOfProductEntity.isEmpty()) {
 
             return listOfProductEntity.stream().map(productEntity -> {
-                ProductDTO productDto = new ProductDTO();
-                BeanUtils.copyProperties(productEntity, productDto);
-                return productDto;
+                ProductResponse productResponse = new ProductResponse();
+                BeanUtils.copyProperties(productEntity, productResponse);
+                return productResponse;
             }).collect(Collectors.toList());
         } else {
 
-            throw new NoProductFoundException(new ErrorDetails(HttpStatus.BAD_REQUEST, ProductServiceConstants.INVALID_PRODUCT_RATING_CODE, ProductServiceConstants.INVALID_PRODUCT_RATING_MESSAGE,ProductServiceConstants.SERVICE_NAME));
+            throw new NoProductFoundException(new ErrorDetails(HttpStatus.BAD_REQUEST, ProductServiceConstants.INVALID_PRODUCT_RATING_CODE, ProductServiceConstants.INVALID_PRODUCT_RATING_MESSAGE,ProductServiceConstants.SERVICE_NAME,""));
         }
 
 
     }
 
     @Override
-    public List<ProductDTO> getListOfStock(List<String> productsId) {
+    public List<ProductData> getListOfStock(List<String> productsId) {
 
 
         List<Products> stocks = productRepository.findByProductIdIn(productsId);
-        List<ProductDTO> productDTOList = new ArrayList<>();
+        List<ProductData> productResponseList = new ArrayList<>();
         if (!stocks.isEmpty()) {
             for (Products product : stocks) {
-                ProductDTO productDTO = new ProductDTO();
-                productDTO.setProductId(product.getProductId());
-                productDTO.setStock(product.getStock());
-                productDTOList.add(productDTO);
+                ProductData productResponse = new ProductData();
+                productResponse.setProductId(product.getProductId());
+                productResponse.setStock(product.getStock());
+                productResponseList.add(productResponse);
             }
-            return productDTOList;
+            return productResponseList;
         } else {
 
-          throw new OutOfStockException(new ErrorDetails(HttpStatus.EXPECTATION_FAILED, ProductServiceConstants.PRODUCT_OUT_OF_STOCK_CODE,ProductServiceConstants.PRODUCT_OUT_OF_STOCK_MESSAGE, ProductServiceConstants.SERVICE_NAME));
+          throw new OutOfStockException(new ErrorDetails(HttpStatus.EXPECTATION_FAILED, ProductServiceConstants.PRODUCT_OUT_OF_STOCK_CODE,ProductServiceConstants.PRODUCT_OUT_OF_STOCK_MESSAGE, ProductServiceConstants.SERVICE_NAME,""));
 
         }
 
 
     }
 
-    private void validateRequestPayload(ProductDTO productDTO) throws InvalidProductException {
-        if (productDTO.getProductPrice() < 0 && productDTO.getProductName().isBlank() && productDTO.getStock() < 0) {
-            throw new InvalidProductException(new ErrorDetails(HttpStatus.PRECONDITION_FAILED, ProductServiceConstants.INVALID_PRODUCT_REQUEST_CODE, ProductServiceConstants.INVALID_PRODUCT_REQUEST_MESSAGE, ProductServiceConstants.SERVICE_NAME));
+    private void validateRequestPayload(ProductRequest productResponse) throws InvalidProductException {
+        if (productResponse.getProductPrice() < 0 && productResponse.getProductName().isBlank() && productResponse.getStock() < 0) {
+            throw new InvalidProductException(new ErrorDetails(HttpStatus.PRECONDITION_FAILED, ProductServiceConstants.INVALID_PRODUCT_REQUEST_CODE, ProductServiceConstants.INVALID_PRODUCT_REQUEST_MESSAGE, ProductServiceConstants.SERVICE_NAME,""));
         }
     }
 }

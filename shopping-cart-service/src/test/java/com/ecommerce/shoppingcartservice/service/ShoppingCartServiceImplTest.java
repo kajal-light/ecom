@@ -1,6 +1,6 @@
 package com.ecommerce.shoppingcartservice.service;
 
-import com.ecommerce.dto.ProductDTO;
+import com.ecommerce.dto.ProductResponse;
 import com.ecommerce.entity.ShoppingBag;
 import com.ecommerce.shoppingcartservice.dao.ShoppingCartRepository;
 import org.junit.jupiter.api.Assertions;
@@ -17,11 +17,11 @@ import java.util.Optional;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
-public class CartServiceImplTest {
+public class ShoppingCartServiceImplTest {
 
 
     @InjectMocks
-    private CartServiceImpl cartServiceImpl;
+    private ShoppingCartServiceImpl cartServiceImpl;
     @Mock
     private ShoppingCartRepository shoppingCartRepository;
 
@@ -32,7 +32,7 @@ public class CartServiceImplTest {
     int quantity=4;
     String userId="hshdd";
 
-    ProductDTO product=getProductDtoResponse();
+    ProductResponse product=getProductDtoResponse();
     double totalPrice = product.getProductPrice() * quantity;
     ShoppingBag item = new ShoppingBag();
     item.setCreatedAt(LocalDate.now());
@@ -41,7 +41,7 @@ public class CartServiceImplTest {
     item.setProductId("jdfhf");
     item.setQuantity(quantity);
     item.setUserId(userId);
-    when(restTemplate.getForObject(Mockito.anyString(), ProductDTO.class, "jdfhf")).thenReturn(product);
+    when(restTemplate.getForObject(Mockito.anyString(), ProductResponse.class, "jdfhf")).thenReturn(product);
     when(shoppingCartRepository.save(item)).thenReturn(item);
     cartServiceImpl.addCartItem(userId,"jdfhf",quantity);
     Assertions.assertNotNull(item);
@@ -57,8 +57,8 @@ void deleteCartItem(){
     when(shoppingCartRepository.findById(bag.getCartItemId())).thenReturn(Optional.of(bag));
     Assertions.assertNotNull(bag);
 }
-    private ProductDTO getProductDtoResponse() {
-        ProductDTO response=new ProductDTO();
+    private ProductResponse getProductDtoResponse() {
+        ProductResponse response=new ProductResponse();
         response.setProductId("jdfhf");
         response.setDate(LocalDate.now());
         response.setProductPrice(234.00);

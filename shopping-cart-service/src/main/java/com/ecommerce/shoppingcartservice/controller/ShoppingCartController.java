@@ -1,7 +1,9 @@
 package com.ecommerce.shoppingcartservice.controller;
 
+import com.ecommerce.dto.EcommerceGenericResponse;
 import com.ecommerce.dto.PaymentResponse;
-import com.ecommerce.shoppingcartservice.service.CartService;
+import com.ecommerce.shoppingcartservice.service.ShoppingCartService;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,19 +14,19 @@ import org.springframework.web.bind.annotation.*;
 public class ShoppingCartController {
 
 
-   private final CartService cartService;
+   private final ShoppingCartService shoppingCartService;
     @Autowired
-    public ShoppingCartController(CartService cartService) {
-        this.cartService = cartService;
+    public ShoppingCartController(ShoppingCartService shoppingCartService) {
+        this.shoppingCartService = shoppingCartService;
     }
 
 
     //addcart
 @PostMapping("/addCartItem/userId/{userId}/productId/{productId}/quantity/{quantity}")
-public ResponseEntity<String> addCartItem(@PathVariable String userId,@PathVariable String productId,@PathVariable int quantity){
+public ResponseEntity<EcommerceGenericResponse> addCartItem(@PathVariable String userId, @PathVariable String productId, @PathVariable int quantity) throws JsonProcessingException {
 
 
-        return new ResponseEntity<>(cartService.addCartItem(userId,productId,quantity),HttpStatus.CREATED);
+        return shoppingCartService.addCartItem(userId,productId,quantity);
 
     }
 
@@ -33,15 +35,15 @@ public ResponseEntity<String> addCartItem(@PathVariable String userId,@PathVaria
     public ResponseEntity<String> deleteCartItem(@PathVariable String userId,@PathVariable Long itemId){
 
        ;
-        return new ResponseEntity<>( cartService.deleteCartItem(userId,itemId),HttpStatus.OK);
+        return new ResponseEntity<>( shoppingCartService.deleteCartItem(userId,itemId),HttpStatus.OK);
 
     }
 
     @PostMapping("/placeOrder/userId/{userId}")
-    public ResponseEntity<PaymentResponse> checkOut(@PathVariable String userId) throws Exception {
+    public ResponseEntity<EcommerceGenericResponse> checkOut(@PathVariable String userId) throws Exception {
 
 
-         return new ResponseEntity<>(cartService.checkOut(userId), HttpStatus.CREATED);
+         return shoppingCartService.checkOut(userId);
 
 
     }

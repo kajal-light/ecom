@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class PaymentResponse implements Serializable {
+public class PaymentResponse implements Serializable ,EcommerceGenericResponse{
 
     private String userId;
     private PaymentType paymentMethod;

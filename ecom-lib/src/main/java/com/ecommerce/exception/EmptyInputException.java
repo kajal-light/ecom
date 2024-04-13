@@ -1,14 +1,15 @@
-package com.exception;
+package com.ecommerce.exception;
 
-import com.exception.model.ErrorDetails;
+import com.ecommerce.exception.dto.ErrorDetails;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-@ResponseStatus(HttpStatus.PRECONDITION_FAILED)
-public class NoProductFoundException extends RuntimeException {
+@ResponseStatus(HttpStatus.BAD_REQUEST)
+public class EmptyInputException extends RuntimeException {
     private final ErrorDetails errorDetails;
 
-    public NoProductFoundException(ErrorDetails errorDetails) {
+
+    public EmptyInputException(ErrorDetails errorDetails) {
         super();
         this.errorDetails = errorDetails;
     }
@@ -17,4 +18,3 @@ public class NoProductFoundException extends RuntimeException {
         return errorDetails;
     }
 }
-

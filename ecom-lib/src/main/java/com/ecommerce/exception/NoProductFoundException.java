@@ -1,14 +1,14 @@
-package com.exception;
+package com.ecommerce.exception;
 
-import com.exception.model.ErrorDetails;
+import com.ecommerce.exception.dto.ErrorDetails;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(HttpStatus.PRECONDITION_FAILED)
-public class InvalidProductException extends RuntimeException {
+public class NoProductFoundException extends RuntimeException {
     private final ErrorDetails errorDetails;
 
-    public InvalidProductException(ErrorDetails errorDetails) {
+    public NoProductFoundException(ErrorDetails errorDetails) {
         super();
         this.errorDetails = errorDetails;
     }

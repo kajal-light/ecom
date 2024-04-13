@@ -1,15 +1,14 @@
-package com.exception;
+package com.ecommerce.exception;
 
-import com.exception.model.ErrorDetails;
+import com.ecommerce.exception.dto.ErrorDetails;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-@ResponseStatus(HttpStatus.BAD_REQUEST)
-public class EmptyInputException extends RuntimeException {
+@ResponseStatus(HttpStatus.PRECONDITION_FAILED)
+public class InvalidProductException extends RuntimeException {
     private final ErrorDetails errorDetails;
 
-
-    public EmptyInputException(ErrorDetails errorDetails) {
+    public InvalidProductException(ErrorDetails errorDetails) {
         super();
         this.errorDetails = errorDetails;
     }
@@ -18,3 +17,4 @@ public class EmptyInputException extends RuntimeException {
         return errorDetails;
     }
 }
+

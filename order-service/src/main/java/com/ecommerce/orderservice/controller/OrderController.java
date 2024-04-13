@@ -1,11 +1,13 @@
 package com.ecommerce.orderservice.controller;
 
 
+import com.ecommerce.dto.EcommerceGenericResponse;
 import com.ecommerce.dto.OrderServiceRequestDTO;
 
 import com.ecommerce.dto.PaymentResponse;
 import com.ecommerce.orderservice.service.OrderService;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -25,10 +27,10 @@ public class OrderController {
 
 
     @PostMapping("/placeOrder")
-    public ResponseEntity<PaymentResponse> placeOrder(@RequestBody OrderServiceRequestDTO orderDto) {
+    public ResponseEntity<EcommerceGenericResponse> placeOrder(@RequestBody OrderServiceRequestDTO orderDto) throws JsonProcessingException {
 
 
-            return ResponseEntity.ok(orderService.placeOrder(orderDto));
+            return orderService.placeOrder(orderDto);
 
 
     }

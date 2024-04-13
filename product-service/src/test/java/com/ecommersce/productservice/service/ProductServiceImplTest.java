@@ -1,6 +1,6 @@
 package com.ecommersce.productservice.service;
 
-import com.ecommerce.dto.ProductDTO;
+import com.ecommerce.dto.ProductResponse;
 import com.ecommerce.entity.Products;
 
 import com.ecommersce.productservice.dao.ProductRepository;
@@ -31,10 +31,10 @@ import static org.mockito.Mockito.when;
 
     @Test
     void createProduct(){
-        ProductDTO productDTO =getProductsDtoResponse();
+        ProductResponse productResponse =getProductsDtoResponse();
         Products productEntity = getProductEntity();
         when(productRepository.save(productEntity)).thenReturn(productEntity);
-        productServiceImpl.createProduct(productDTO);
+        productServiceImpl.createProduct(productResponse);
         Assertions.assertNotNull(productEntity);
 
     }
@@ -42,16 +42,16 @@ import static org.mockito.Mockito.when;
 
     @Test
     void createListOfProduct(){
-        ProductDTO productDTO =getProductsDtoResponse();
-        List<ProductDTO> listOfProductDto=new ArrayList<>();
-        listOfProductDto.add(productDTO);
+        ProductResponse productResponse =getProductsDtoResponse();
+        List<ProductResponse> listOfProductResponse =new ArrayList<>();
+        listOfProductResponse.add(productResponse);
         Products productEntity = getProductEntity();
         List<Products> listOfProductEntity=new ArrayList<>();
         listOfProductEntity.add(productEntity);
         when(productRepository.saveAll(listOfProductEntity)).thenReturn(listOfProductEntity);
 
 
-      productServiceImpl.createListOfProduct(listOfProductDto);
+      productServiceImpl.createListOfProduct(listOfProductResponse);
         Assertions.assertNotNull(productEntity);
 
     }
@@ -59,27 +59,27 @@ import static org.mockito.Mockito.when;
 
     @Test
     void updateProduct(){
-        ProductDTO productDTO =getProductsDtoResponse();
+        ProductResponse productResponse =getProductsDtoResponse();
         Products productEntity = getProductEntity();
-        when(productRepository.findByProductId(productDTO.getProductId())).thenReturn(Optional.of(productEntity));
+        when(productRepository.findByProductId(productResponse.getProductId())).thenReturn(Optional.of(productEntity));
         when(productRepository.save(productEntity)).thenReturn(productEntity);
 
 
-          productServiceImpl.updateProduct(productDTO.getProductId(), productDTO);
+          productServiceImpl.updateProduct(productResponse.getProductId(), productResponse);
         Assertions.assertNotNull(productEntity);
 
     }
     //@Test
     void deleteProduct(){
-        ProductDTO productDTO =getProductsDtoResponse();
+        ProductResponse productResponse =getProductsDtoResponse();
 
         Products productEntity = getProductEntity();
 
-        when(productRepository.findById(productDTO.getProductId())).getMock();
+        when(productRepository.findById(productResponse.getProductId())).getMock();
        // when(productRepository.delete(productEntity));
 
 
-        productServiceImpl.deleteProduct(productDTO.getProductId());
+        productServiceImpl.deleteProduct(productResponse.getProductId());
         Assertions.assertNotNull(productEntity);
 
     }
@@ -87,38 +87,38 @@ import static org.mockito.Mockito.when;
 
     @Test
     void getProductByProductId(){
-        ProductDTO productDTO =getProductsDtoResponse();
+        ProductResponse productResponse =getProductsDtoResponse();
 
         Products productEntity = getProductEntity();
 
-        when(productRepository.findByProductId(productDTO.getProductId())).thenReturn(Optional.of(productEntity));
+        when(productRepository.findByProductId(productResponse.getProductId())).thenReturn(Optional.of(productEntity));
 
-        productDTO =productServiceImpl.getProductByProductId(productDTO.getProductId());
+        productResponse =productServiceImpl.getProductByProductId(productResponse.getProductId());
         Assertions.assertNotNull(productEntity);
 
     }
 
     @Test
     void getProductByProductName(){
-        ProductDTO productDTO =getProductsDtoResponse();
+        ProductResponse productResponse =getProductsDtoResponse();
         ;List<Products> ListOfProductEntity=new ArrayList<>();
         ListOfProductEntity.add(getProductEntity());
-        when(productRepository.findByProductName(productDTO.getProductName())).thenReturn(ListOfProductEntity);
+        when(productRepository.findByProductName(productResponse.getProductName())).thenReturn(ListOfProductEntity);
 
-        productServiceImpl.getProductByProductName(productDTO.getProductName());
+        productServiceImpl.getProductByProductName(productResponse.getProductName());
         Assertions.assertNotNull(ListOfProductEntity);
 
     }
 
     @Test
     void getProductByProductCategory(){
-        ProductDTO productDTO =getProductsDtoResponse();
+        ProductResponse productResponse =getProductsDtoResponse();
 
         List<Products> ListOfProductEntity=new ArrayList<>();
         ListOfProductEntity.add(getProductEntity());
-        when(productRepository.findByProductCategory(productDTO.getCategory())).thenReturn(ListOfProductEntity);
+        when(productRepository.findByProductCategory(productResponse.getCategory())).thenReturn(ListOfProductEntity);
 
-        productServiceImpl.getProductByCategory(productDTO.getCategory());
+        productServiceImpl.getProductByCategory(productResponse.getCategory());
         Assertions.assertNotNull(ListOfProductEntity);
 
     }
@@ -161,15 +161,15 @@ import static org.mockito.Mockito.when;
         Assertions.assertNotNull(ListOfProductEntity);
 
     }
-    private ProductDTO getProductsDtoResponse() {
-        ProductDTO productDTO =new ProductDTO();
-        productDTO.setProductId("shdddbhd");
-        productDTO.setProductName("laptop");
-        productDTO.setProductPrice(2300.5);
-        productDTO.setStock(1000);
-        productDTO.setDate(LocalDate.now());
+    private ProductResponse getProductsDtoResponse() {
+        ProductResponse productResponse =new ProductResponse();
+        productResponse.setProductId("shdddbhd");
+        productResponse.setProductName("laptop");
+        productResponse.setProductPrice(2300.5);
+        productResponse.setStock(1000);
+        productResponse.setDate(LocalDate.now());
 
-        return productDTO;
+        return productResponse;
     }
 
     private Products getProductEntity() {

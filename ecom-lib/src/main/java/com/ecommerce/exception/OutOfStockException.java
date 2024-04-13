@@ -1,6 +1,6 @@
-package com.exception;
+package com.ecommerce.exception;
 
-import com.exception.model.ErrorDetails;
+import com.ecommerce.exception.dto.ErrorDetails;
 
 public class OutOfStockException extends RuntimeException {
     private final ErrorDetails errorDetails;

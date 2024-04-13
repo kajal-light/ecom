@@ -9,7 +9,7 @@ import java.util.*;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class OrderServiceResponse  {
+public class OrderServiceResponse implements EcommerceGenericResponse {
 
     Map<String, List<Integer>>  productWithStockAndOrderedQuantity;
 

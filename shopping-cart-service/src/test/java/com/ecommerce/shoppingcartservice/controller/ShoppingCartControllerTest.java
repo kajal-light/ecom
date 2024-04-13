@@ -3,7 +3,7 @@ package com.ecommerce.shoppingcartservice.controller;
 import com.ecommerce.dto.PaymentResponse;
 import com.ecommerce.dto.PaymentStatus;
 import com.ecommerce.dto.PaymentType;
-import com.ecommerce.shoppingcartservice.service.CartService;
+import com.ecommerce.shoppingcartservice.service.ShoppingCartService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -22,7 +22,7 @@ import static org.mockito.Mockito.when;
     @InjectMocks
     private ShoppingCartController shoppingCartController;
     @Mock
-    private CartService cartService;
+    private ShoppingCartService shoppingCartService;
 
     @Test
     void addCartItem(){
@@ -48,7 +48,7 @@ import static org.mockito.Mockito.when;
         response.setPaymentStatus(PaymentStatus.COMPLETED);
         response.setOrderAmount(String.valueOf(127347));
         response.setPaymentDate(LocalDateTime.now());
-        when( cartService.checkOut("1234")).thenReturn(response);
+        when( shoppingCartService.checkOut("1234")).thenReturn(response);
          response = shoppingCartController.checkOut("1234").getBody();
         Assertions.assertNotNull(response);
 

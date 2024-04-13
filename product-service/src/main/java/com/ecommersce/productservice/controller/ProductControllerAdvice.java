@@ -1,17 +1,15 @@
 package com.ecommersce.productservice.controller;
 
 
-import com.exception.InvalidProductException;
-import com.exception.NoProductFoundException;
-import com.exception.OutOfStockException;
-import com.exception.model.ErrorDetails;
+import com.ecommerce.exception.InvalidProductException;
+import com.ecommerce.exception.NoProductFoundException;
+import com.ecommerce.exception.OutOfStockException;
+import com.ecommerce.exception.dto.ErrorDetails;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-
-import java.util.NoSuchElementException;
 
 @RestControllerAdvice
 public class ProductControllerAdvice {
@@ -26,7 +24,7 @@ public class ProductControllerAdvice {
     }
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(NoProductFoundException.class)
-    public ResponseEntity<ErrorDetails> noProductFoundExceptionException(NoProductFoundException ex) {
+    public ResponseEntity<ErrorDetails> handleProductFoundExceptionException(NoProductFoundException ex) {
 
         return new ResponseEntity<>(ex.getErrorDetails(), HttpStatus.PRECONDITION_FAILED);
     }
