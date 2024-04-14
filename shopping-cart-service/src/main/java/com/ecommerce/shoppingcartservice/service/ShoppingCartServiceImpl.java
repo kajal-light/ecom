@@ -3,6 +3,7 @@ package com.ecommerce.shoppingcartservice.service;
 import com.ecommerce.dto.*;
 import com.ecommerce.entity.ShoppingBag;
 import com.ecommerce.exception.NoProductFoundException;
+import com.ecommerce.exception.OutOfStockException;
 import com.ecommerce.exception.dto.ErrorDetails;
 import com.ecommerce.shoppingcartservice.constants.ShoppingCartServiceConstants;
 import com.ecommerce.shoppingcartservice.dao.ShoppingCartRepository;
@@ -20,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -65,7 +67,16 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     @Override
     public ResponseEntity<EcommerceGenericResponse> addCartItem(String userId, String productId, int quantity) {
         try {
+            ShoppingBag shoppingBag=new ShoppingBag();
             ProductResponse productResponse = getProductResponse(productId);
+            shoppingBag.setQuantity(quantity);
+            shoppingBag.setProductPrice(productResponse.getProductPrice());
+            shoppingBag.setUserId(userId);
+            shoppingBag.setTotalPrice(quantity*productResponse.getProductPrice());
+            shoppingBag.setCreatedAt(LocalDate.now());
+            shoppingBag.setProductId(productId);
+
+            shoppingCartRepository.save(shoppingBag);
             return new ResponseEntity<>(productResponse, HttpStatus.CREATED);
         } catch (HttpStatusCodeException e) {
             return handleHttpStatusCodeException(e);
@@ -118,16 +129,17 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
                 log.info(MAKING_A_CALL_TO_ORDER_SERVICE);
                 return proceedOrder(userId, listItemsInBag, totalAmountOfUserOrder);
             } else {
-                throw new NoProductFoundException(new ErrorDetails(HttpStatus.BAD_REQUEST, ShoppingCartServiceConstants.INVALID_USER_ID_CODE, ShoppingCartServiceConstants.INVALID_USER_ID_MESSAGE, ShoppingCartServiceConstants.SERVICE_NAME, ""));
+                throw new NoProductFoundException(new ErrorDetails(HttpStatus.BAD_REQUEST, ShoppingCartServiceConstants.INVALID_USER_ID_CODE, ShoppingCartServiceConstants.INVALID_USER_ID_MESSAGE, ShoppingCartServiceConstants.SERVICE_NAME, LocalDateTime.now().toString()));
             }
-        } catch (HttpStatusCodeException e) {
+        }
+        catch (HttpStatusCodeException e) {
             log.error(e.getMessage());
             objectMapper.registerModule(new JavaTimeModule());
             ErrorDetails errorDetails = objectMapper.readValue(e.getResponseBodyAsString(), ErrorDetails.class);
             return new ResponseEntity<>(errorDetails, HttpStatus.PRECONDITION_FAILED);
         } catch (Exception e) {
             log.error(e.getMessage());
-            throw new NoProductFoundException(new ErrorDetails(HttpStatus.BAD_REQUEST, ShoppingCartServiceConstants.INVALID_USER_ID_CODE, ShoppingCartServiceConstants.INVALID_USER_ID_MESSAGE, ProductServiceConstants.SERVICE_NAME, ""));
+            throw new NoProductFoundException(new ErrorDetails(HttpStatus.BAD_REQUEST, ShoppingCartServiceConstants.INVALID_USER_ID_CODE, ShoppingCartServiceConstants.INVALID_USER_ID_MESSAGE, ShoppingCartServiceConstants.SERVICE_NAME, LocalDateTime.now().toString()));
 
         }
 

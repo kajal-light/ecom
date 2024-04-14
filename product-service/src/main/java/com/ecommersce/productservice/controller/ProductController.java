@@ -35,7 +35,7 @@ public class ProductController {
     public ResponseEntity<String> createListOfProduct(@RequestBody List<ProductRequest> productRequest) {
 
         productService.createListOfProduct(productRequest);
-        return new ResponseEntity<>("List of Products is inserted successfully", HttpStatus.CREATED);
+        return new ResponseEntity<>("List of Product inserted successfully", HttpStatus.CREATED);
 
     }
 

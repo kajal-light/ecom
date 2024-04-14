@@ -12,6 +12,6 @@ import java.math.BigDecimal;
 public interface UserRepository extends JpaRepository<User, String> {
     @Query("SELECT availableAmount FROM User WHERE userId =:userId")
     BigDecimal findAvailableBalanceByUserId(@Param("userId") String userId);
-@Query("SELECT availableCreditLimit FROM User WHERE userId =:userId")
+  @Query("SELECT availableCreditLimit FROM User WHERE userId =:userId")
     BigDecimal findAvailableCreditLimitByUserId(@Param("userId") String userId);
 }

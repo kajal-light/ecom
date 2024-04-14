@@ -12,9 +12,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class ShoppingCartControllerAdvice {
 
 
-
-
-
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(NoProductFoundException.class)
     public ResponseEntity<ErrorDetails> noProductFoundExceptionException(NoProductFoundException ex) {

@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -89,7 +90,7 @@ public class ProductServiceImpl implements ProductService {
 
         } else {
 
-            throw new NoProductFoundException(new ErrorDetails(HttpStatus.BAD_REQUEST, ProductServiceConstants.INVALID_PRODUCT_ID_CODE, ProductServiceConstants.INVALID_PRODUCT_ID_MESSAGE, ProductServiceConstants.SERVICE_NAME, ""));
+            throw new NoProductFoundException(new ErrorDetails(HttpStatus.BAD_REQUEST, ProductServiceConstants.INVALID_PRODUCT_ID_CODE, ProductServiceConstants.INVALID_PRODUCT_ID_MESSAGE, ProductServiceConstants.SERVICE_NAME, LocalDateTime.now().toString()));
 
         }
 
@@ -114,7 +115,7 @@ public class ProductServiceImpl implements ProductService {
             return product;
         } else {
 
-            throw new NoProductFoundException(new ErrorDetails(HttpStatus.BAD_REQUEST, ProductServiceConstants.INVALID_PRODUCT_ID_CODE, ProductServiceConstants.INVALID_PRODUCT_ID_MESSAGE, ProductServiceConstants.SERVICE_NAME, ""));
+            throw new NoProductFoundException(new ErrorDetails(HttpStatus.BAD_REQUEST, ProductServiceConstants.INVALID_PRODUCT_ID_CODE, ProductServiceConstants.INVALID_PRODUCT_ID_MESSAGE, ProductServiceConstants.SERVICE_NAME, LocalDateTime.now().toString()));
         }
 
 
@@ -131,7 +132,7 @@ public class ProductServiceImpl implements ProductService {
                 return productResponse;
             }).collect(Collectors.toList());
         } else {
-            throw new NoProductFoundException(new ErrorDetails(HttpStatus.BAD_REQUEST, ProductServiceConstants.INVALID_PRODUCT_NAME_CODE, ProductServiceConstants.INVALID_PRODUCT_NAME_MESSAGE, ProductServiceConstants.SERVICE_NAME, ""));
+            throw new NoProductFoundException(new ErrorDetails(HttpStatus.BAD_REQUEST, ProductServiceConstants.INVALID_PRODUCT_NAME_CODE, ProductServiceConstants.INVALID_PRODUCT_NAME_MESSAGE, ProductServiceConstants.SERVICE_NAME, LocalDateTime.now().toString()));
         }
 
 
@@ -150,7 +151,7 @@ public class ProductServiceImpl implements ProductService {
             }).collect(Collectors.toList());
         } else {
 
-            throw new NoProductFoundException(new ErrorDetails(HttpStatus.BAD_REQUEST, ProductServiceConstants.INVALID_PRODUCT_CATEGORY_CODE, ProductServiceConstants.INVALID_PRODUCT_CATEGORY_MESSAGE, ProductServiceConstants.SERVICE_NAME, ""));
+            throw new NoProductFoundException(new ErrorDetails(HttpStatus.BAD_REQUEST, ProductServiceConstants.INVALID_PRODUCT_CATEGORY_CODE, ProductServiceConstants.INVALID_PRODUCT_CATEGORY_MESSAGE, ProductServiceConstants.SERVICE_NAME, LocalDateTime.now().toString()));
         }
 
 
@@ -170,7 +171,7 @@ public class ProductServiceImpl implements ProductService {
             }).collect(Collectors.toList());
         } else {
 
-            throw new NoProductFoundException(new ErrorDetails(HttpStatus.BAD_REQUEST, ProductServiceConstants.INVALID_PRODUCT_PRICE_CODE, ProductServiceConstants.INVALID_PRODUCT_PRICE_MESSAGE, ProductServiceConstants.SERVICE_NAME, ""));
+            throw new NoProductFoundException(new ErrorDetails(HttpStatus.BAD_REQUEST, ProductServiceConstants.INVALID_PRODUCT_PRICE_CODE, ProductServiceConstants.INVALID_PRODUCT_PRICE_MESSAGE, ProductServiceConstants.SERVICE_NAME, LocalDateTime.now().toString()));
         }
 
 
@@ -191,7 +192,7 @@ public class ProductServiceImpl implements ProductService {
             }).collect(Collectors.toList());
         } else {
 
-            throw new NoProductFoundException(new ErrorDetails(HttpStatus.BAD_REQUEST, ProductServiceConstants.INVALID_PRODUCT_RATING_CODE, ProductServiceConstants.INVALID_PRODUCT_RATING_MESSAGE, ProductServiceConstants.SERVICE_NAME, ""));
+            throw new NoProductFoundException(new ErrorDetails(HttpStatus.BAD_REQUEST, ProductServiceConstants.INVALID_PRODUCT_RATING_CODE, ProductServiceConstants.INVALID_PRODUCT_RATING_MESSAGE, ProductServiceConstants.SERVICE_NAME, LocalDateTime.now().toString()));
         }
 
 
@@ -202,6 +203,8 @@ public class ProductServiceImpl implements ProductService {
 
 
         List<Products> stocks = productRepository.findByProductIdIn(productsId);
+
+
         List<ProductData> productResponseList = new ArrayList<>();
         if (!stocks.isEmpty()) {
             for (Products product : stocks) {
@@ -213,7 +216,7 @@ public class ProductServiceImpl implements ProductService {
             return productResponseList;
         } else {
 
-            throw new OutOfStockException(new ErrorDetails(HttpStatus.EXPECTATION_FAILED, ProductServiceConstants.PRODUCT_OUT_OF_STOCK_CODE, ProductServiceConstants.PRODUCT_OUT_OF_STOCK_MESSAGE, ProductServiceConstants.SERVICE_NAME, ""));
+            throw new OutOfStockException(new ErrorDetails(HttpStatus.EXPECTATION_FAILED, ProductServiceConstants.PRODUCT_OUT_OF_STOCK_CODE, ProductServiceConstants.PRODUCT_OUT_OF_STOCK_MESSAGE, ProductServiceConstants.SERVICE_NAME, LocalDateTime.now().toString()));
 
         }
 
@@ -222,7 +225,7 @@ public class ProductServiceImpl implements ProductService {
 
     private void validateRequestPayload(ProductRequest productResponse) throws InvalidProductException {
         if (productResponse.getProductPrice() < 0 && productResponse.getProductName().isBlank() && productResponse.getStock() < 0) {
-            throw new InvalidProductException(new ErrorDetails(HttpStatus.PRECONDITION_FAILED, ProductServiceConstants.INVALID_PRODUCT_REQUEST_CODE, ProductServiceConstants.INVALID_PRODUCT_REQUEST_MESSAGE, ProductServiceConstants.SERVICE_NAME, ""));
+            throw new InvalidProductException(new ErrorDetails(HttpStatus.PRECONDITION_FAILED, ProductServiceConstants.INVALID_PRODUCT_REQUEST_CODE, ProductServiceConstants.INVALID_PRODUCT_REQUEST_MESSAGE, ProductServiceConstants.SERVICE_NAME, LocalDateTime.now().toString()));
         }
     }
 }

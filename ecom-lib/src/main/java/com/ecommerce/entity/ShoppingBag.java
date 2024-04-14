@@ -1,9 +1,6 @@
 package com.ecommerce.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.Data;
 
 import java.time.LocalDate;
@@ -12,7 +9,7 @@ import java.time.LocalDate;
 @Entity
 public class ShoppingBag {
 @Id
-@GeneratedValue
+@GeneratedValue(strategy = GenerationType.IDENTITY)
 private Long cartItemId;
 @Column
 private Double totalPrice;

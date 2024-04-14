@@ -1,5 +1,6 @@
 package com.ecommerce.shoppingcartservice.controller;
 
+import com.ecommerce.dto.EcommerceGenericResponse;
 import com.ecommerce.dto.PaymentResponse;
 import com.ecommerce.dto.PaymentStatus;
 import com.ecommerce.dto.PaymentType;
@@ -27,7 +28,7 @@ import static org.mockito.Mockito.when;
     @Test
     void addCartItem(){
 
-        ResponseEntity<String> response = shoppingCartController.addCartItem("1234","jsdh",3);
+        ResponseEntity<EcommerceGenericResponse> response = shoppingCartController.addCartItem("1234","jsdh",3);
         Assertions.assertEquals(HttpStatus.CREATED, response.getStatusCode());
 
     }
@@ -42,14 +43,16 @@ import static org.mockito.Mockito.when;
 
     @Test
     void checkOut() throws Exception {
+
         PaymentResponse response=new PaymentResponse();
         response.setUserId("1234");
         response.setPaymentMethod(PaymentType.COD);
         response.setPaymentStatus(PaymentStatus.COMPLETED);
         response.setOrderAmount(String.valueOf(127347));
         response.setPaymentDate(LocalDateTime.now());
-        when( shoppingCartService.checkOut("1234")).thenReturn(response);
-         response = shoppingCartController.checkOut("1234").getBody();
+        ResponseEntity<EcommerceGenericResponse> ecommerceGenericResponse = new ResponseEntity<EcommerceGenericResponse>(response,HttpStatus.CREATED);
+        when( shoppingCartService.checkOut("1234")).thenReturn(ecommerceGenericResponse);
+         response = (PaymentResponse) shoppingCartController.checkOut("1234").getBody();
         Assertions.assertNotNull(response);
 
     }

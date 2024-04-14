@@ -26,10 +26,14 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 public class OrderServiceImpl implements OrderService {
+    private static final String MAKING_A_CALL_TO_PAYMENT_SERVICE = "Making a call to order service";
+    private static final String MAKING_A_CALL_TO_PRODUCT_SERVICE = "Making a call to Product service";
+    private static final String PAYMENT_SERVICE_RESPONSE = "payment service call completed";
 
     RestTemplate restTemplate = new RestTemplate();
     ObjectMapper mapper = new ObjectMapper();
@@ -48,19 +52,21 @@ public class OrderServiceImpl implements OrderService {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         PaymentResponse response = new PaymentResponse();
+        List<String> outOfStockstock = null;
         try {
             List<OrderedProductDTO> products = orderServiceRequestDTO.getProducts();
             List<String> productIds = products.stream().map(OrderedProductDTO::getProductId).toList();
+            log.info(MAKING_A_CALL_TO_PRODUCT_SERVICE);
             //making call to product service to fetch stocks for their respective products Id
             List<ProductData> stockList = callProductService(productIds, headers);
-            List<String> outOfStockProductIds = isProductOutOfStock(products, stockList);
+            outOfStockstock = isProductOutOfStock(products, stockList);
             //todo: productOutOfStock variable name hoga ya instock?
-            if (!outOfStockProductIds.isEmpty()) {
+            if (outOfStockstock.isEmpty()) {
                 saveOrderRecord(orderServiceRequestDTO, productIds);
                 response = callPaymentService(orderServiceRequestDTO, headers);
                 return new ResponseEntity<>(response, HttpStatus.CREATED);
             } else {
-                throw new OutOfStockException(new ErrorDetails(HttpStatus.CONFLICT, OrderServiceConstants.PRODUCT_OUT_OF_STOCK_MESSAGE + ":" + outOfStockProductIds, OrderServiceConstants.PRODUCT_OUT_OF_STOCK_CODE, OrderServiceConstants.SERVICE_NAME, LocalDateTime.now().toString()));
+                throw new OutOfStockException(new ErrorDetails(HttpStatus.CONFLICT, OrderServiceConstants.PRODUCT_OUT_OF_STOCK_MESSAGE, OrderServiceConstants.PRODUCT_OUT_OF_STOCK_CODE, OrderServiceConstants.SERVICE_NAME, LocalDateTime.now().toString()));
             }
 
         } catch (JsonProcessingException | NoProductFoundException e) {
@@ -99,7 +105,7 @@ public class OrderServiceImpl implements OrderService {
                             .orElse(0);
                     return stock == 0 || stock - orderQuantity < 0;
                 }).map(OrderedProductDTO::getProductId)
-                .toList();
+                .collect(Collectors.toList());
 
     }
 
@@ -132,9 +138,9 @@ public class OrderServiceImpl implements OrderService {
         paymentRequest.setUserId(orderServiceRequestDTO.getUserId());
         HttpEntity<PaymentRequest> paymentRequestEntity;
         paymentRequestEntity = new HttpEntity<>(paymentRequest, headers);
-        log.info("Making a call to payment service ");
+        log.info(MAKING_A_CALL_TO_PAYMENT_SERVICE);
         ResponseEntity<JsonNode> paymentJson = restTemplate.exchange(paymentService, HttpMethod.POST, paymentRequestEntity, JsonNode.class);
-        log.info("payment service call completed");
+        log.info(PAYMENT_SERVICE_RESPONSE);
         mapper.registerModule(new JavaTimeModule());
         String jsonPaymentResponse = mapper.writeValueAsString(paymentJson.getBody());
         return mapper.readValue(jsonPaymentResponse, PaymentResponse.class);

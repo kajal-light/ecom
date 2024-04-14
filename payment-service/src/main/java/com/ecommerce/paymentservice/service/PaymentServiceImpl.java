@@ -76,6 +76,9 @@ public class PaymentServiceImpl implements PaymentService {
             BeanUtils.copyProperties(paymentRequest, payment);
             payment.setPaymentId(UUID.randomUUID().toString());
             payment.setPaymentStatus(PaymentStatus.COMPLETED.toString());
+
+            payment.setPaymentDate(LocalDateTime.now());
+            payment.setOrderDate(paymentRequest.getDateOfOrder());
             payment = paymentRepository.save(payment);
             BeanUtils.copyProperties(payment, paymentResponse);
             paymentResponse.setPaymentDate(LocalDateTime.now());
@@ -88,8 +91,10 @@ public class PaymentServiceImpl implements PaymentService {
             paymentResponse.setPaymentDate(LocalDateTime.now());
             payment.setPaymentStatus(PaymentStatus.FAILED.toString());
             payment.setPaymentId(UUID.randomUUID().toString());
+            payment.setPaymentDate(LocalDateTime.now());
+            payment.setOrderDate(paymentRequest.getDateOfOrder());
             paymentRepository.save(payment);
-            throw new InsufficientBalanceException(new ErrorDetails(HttpStatus.EXPECTATION_FAILED, PaymentServiceConstants.INSUFFICIENT_BALANCE, PaymentServiceConstants.INSUFFICIENT_BALANCE_CODE, PaymentServiceConstants.SERVICE_NAME, ""));
+            throw new InsufficientBalanceException(new ErrorDetails(HttpStatus.EXPECTATION_FAILED, PaymentServiceConstants.INSUFFICIENT_BALANCE, PaymentServiceConstants.INSUFFICIENT_BALANCE_CODE, PaymentServiceConstants.SERVICE_NAME, LocalDateTime.now().toString()));
 
         } else {
             log.info("BALANCE 0 after the order");
@@ -97,6 +102,8 @@ public class PaymentServiceImpl implements PaymentService {
             BeanUtils.copyProperties(paymentRequest, payment);
             payment.setPaymentId(UUID.randomUUID().toString());
             payment.setPaymentStatus(PaymentStatus.COMPLETED.toString());
+            payment.setPaymentDate(LocalDateTime.now());
+            payment.setOrderDate(paymentRequest.getDateOfOrder());
             payment = paymentRepository.save(payment);
             BeanUtils.copyProperties(payment, paymentResponse);
             paymentResponse.setPaymentDate(LocalDateTime.now());
