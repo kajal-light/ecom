@@ -125,6 +125,7 @@ public class OrderServiceImpl implements OrderService {
             HttpEntity<List<String>> requestProductIds = new HttpEntity<>(productIds, headers);
             ResponseEntity<JsonNode> responseEntity = restTemplate.exchange(productService, HttpMethod.POST, requestProductIds, JsonNode.class);
             String jsonResponse = mapper.writeValueAsString(responseEntity.getBody());
+           //todo: below sentence returning null
             return mapper.readValue(jsonResponse, new TypeReference<>() {
             });
         } catch (JsonProcessingException e) {

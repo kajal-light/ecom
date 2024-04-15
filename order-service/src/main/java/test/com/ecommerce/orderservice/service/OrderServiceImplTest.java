@@ -23,6 +23,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.client.RestTemplate;
 
+import java.lang.reflect.Field;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -53,13 +54,18 @@ public class OrderServiceImplTest {
     private OrderRepository orderRepository;
 
     @BeforeEach
-    void setUp() {
+    void setUp() throws NoSuchFieldException, IllegalAccessException {
+        MockitoAnnotations.openMocks(this);
+/*        restTemplate = Mockito.mock(RestTemplate.class);
+        mapper = Mockito.mock(ObjectMapper.class);*/
 
-        restTemplate = Mockito.mock(RestTemplate.class);
-        mapper = Mockito.mock(ObjectMapper.class);
+        // Use reflection to set the objectMapperMock to the orderService's mapper field
+        Field mapperField = OrderServiceImpl.class.getDeclaredField("mapper");
+        mapperField.setAccessible(true);
+        mapperField.set(orderService, mapper);
         ReflectionTestUtils.setField(orderService, "productService", MOCKED_PRODUCT_SERVICE_URL);
         ReflectionTestUtils.setField(orderService, "paymentService", "mockedPaymentServiceUrl");
-        MockitoAnnotations.openMocks(this);
+
     }
 
     @Test
@@ -73,12 +79,13 @@ public class OrderServiceImplTest {
                 new ProductData("1", 1000),
                 new ProductData("2", 0)
         );
+        String jsonResponse = "[{\"productId\":\"1\",\"stock\":1000},{\"productId\":\"2\",\"stock\":0}]";
+
         when(orderServiceRequestDTO.getProducts()).thenReturn(products);
         JsonNode jsonNodeMock = Mockito.mock(JsonNode.class);
         Mockito.when(mapper.valueToTree(productsResponse)).thenReturn(jsonNodeMock);
-        ResponseEntity<JsonNode> productResponse = new ResponseEntity<>(jsonNodeMock, HttpStatus.OK);
+        ResponseEntity<JsonNode> productResponse = new ResponseEntity<>(mapper.readTree(jsonResponse), HttpStatus.OK);
         when(restTemplate.exchange(eq(MOCKED_PRODUCT_SERVICE_URL), eq(HttpMethod.POST), any(HttpEntity.class), eq(JsonNode.class))).thenReturn(productResponse);
-        String jsonResponse = "[{\"productId\":\"1\",\"stock\":1000},{\"productId\":\"2\",\"stock\":0}]";
 
         when(mapper.writeValueAsString(any())).thenReturn(jsonResponse);
         Mockito.when(mapper.readValue(
