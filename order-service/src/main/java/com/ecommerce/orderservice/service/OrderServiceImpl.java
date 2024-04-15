@@ -30,17 +30,20 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
-public class  OrderServiceImpl implements OrderService {
+public class OrderServiceImpl implements OrderService {
     private static final String MAKING_A_CALL_TO_PAYMENT_SERVICE = "Making a call to order service";
     private static final String MAKING_A_CALL_TO_PRODUCT_SERVICE = "Making a call to Product service";
     private static final String PAYMENT_SERVICE_RESPONSE = "payment service call completed";
 
     RestTemplate restTemplate = new RestTemplate();
     ObjectMapper mapper = new ObjectMapper();
+
     @Autowired
     private OrderRepository orderRepository;
+
     @Value("${product.service.url}")
     private String productService;
+
     @Value("${payment.service.url}")
     private String paymentService;
 
@@ -52,16 +55,16 @@ public class  OrderServiceImpl implements OrderService {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         PaymentResponse response = new PaymentResponse();
-        List<String> outOfStockstock = null;
+        List<String> productStock = null;
         try {
             List<OrderedProductDTO> products = orderServiceRequestDTO.getProducts();
             List<String> productIds = products.stream().map(OrderedProductDTO::getProductId).toList();
             log.info(MAKING_A_CALL_TO_PRODUCT_SERVICE);
             //making call to product service to fetch stocks for their respective products Id
             List<ProductData> stockList = callProductService(productIds, headers);
-            outOfStockstock = isProductOutOfStock(products, stockList);
+            productStock = checkProductStockAvailabilityStatus(products, stockList);
             //todo: productOutOfStock variable name hoga ya instock?
-            if (outOfStockstock.isEmpty()) {
+            if (productStock.isEmpty()) {
                 saveOrderRecord(orderServiceRequestDTO, productIds);
                 response = callPaymentService(orderServiceRequestDTO, headers);
                 return new ResponseEntity<>(response, HttpStatus.CREATED);
@@ -93,7 +96,7 @@ public class  OrderServiceImpl implements OrderService {
 
     }
 
-    private List<String> isProductOutOfStock(List<OrderedProductDTO> products, List<ProductData> productsInventory) {
+    private List<String> checkProductStockAvailabilityStatus(List<OrderedProductDTO> products, List<ProductData> productsInventory) {
         return products.stream()
                 .filter(productInventory -> {
                     String productId = productInventory.getProductId();

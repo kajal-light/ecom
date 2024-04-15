@@ -1,18 +1,40 @@
 package test.com.ecommerce.orderservice.service;
 
 
+import com.ecommerce.dto.EcommerceGenericResponse;
 import com.ecommerce.dto.OrderServiceRequestDTO;
+import com.ecommerce.dto.OrderedProductDTO;
+import com.ecommerce.dto.ProductData;
+import com.ecommerce.orderservice.dao.OrderRepository;
 import com.ecommerce.orderservice.service.OrderServiceImpl;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.*;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.web.client.RestTemplate;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.when;
+
+@ExtendWith(SpringExtension.class)
 
 public class OrderServiceImplTest {
 
 
+    public static final String MOCKED_PRODUCT_SERVICE_URL = "mockedProductServiceUrl";
     /**
      * Method: placeOrder(OrderServiceRequestDTO orderServiceRequestDTO)
      */
@@ -21,90 +43,53 @@ public class OrderServiceImplTest {
     @InjectMocks
     OrderServiceImpl orderService;
 
+    @Mock
+    RestTemplate restTemplate;
+
+    @Mock
+    ObjectMapper mapper;
+
+    @Mock
+    private OrderRepository orderRepository;
+
+    @BeforeEach
+    void setUp() {
+
+        restTemplate = Mockito.mock(RestTemplate.class);
+        mapper = Mockito.mock(ObjectMapper.class);
+        ReflectionTestUtils.setField(orderService, "productService", MOCKED_PRODUCT_SERVICE_URL);
+        ReflectionTestUtils.setField(orderService, "paymentService", "mockedPaymentServiceUrl");
+        MockitoAnnotations.openMocks(this);
+    }
+
     @Test
     public void testPlaceOrder() throws Exception {
-//TODO: Test goes here... 
+        OrderServiceRequestDTO orderServiceRequestDTO = Mockito.mock(OrderServiceRequestDTO.class);
+        List<OrderedProductDTO> products = List.of(
+                new OrderedProductDTO("1", 10d, 100),
+                new OrderedProductDTO("2", 12d, 1)
+        );
+        List<ProductData> productsResponse = List.of(
+                new ProductData("1", 1000),
+                new ProductData("2", 0)
+        );
+        when(orderServiceRequestDTO.getProducts()).thenReturn(products);
+        JsonNode jsonNodeMock = Mockito.mock(JsonNode.class);
+        Mockito.when(mapper.valueToTree(productsResponse)).thenReturn(jsonNodeMock);
+        ResponseEntity<JsonNode> productResponse = new ResponseEntity<>(jsonNodeMock, HttpStatus.OK);
+        when(restTemplate.exchange(eq(MOCKED_PRODUCT_SERVICE_URL), eq(HttpMethod.POST), any(HttpEntity.class), eq(JsonNode.class))).thenReturn(productResponse);
+        String jsonResponse = "[{\"productId\":\"1\",\"stock\":1000},{\"productId\":\"2\",\"stock\":0}]";
+
+        when(mapper.writeValueAsString(any())).thenReturn(jsonResponse);
+        Mockito.when(mapper.readValue(
+                anyString(), // JSON string
+                ArgumentMatchers.eq(new TypeReference<List<ProductData>>() {
+                                    } // Type reference
+                ))).thenReturn(productsResponse);
+        ResponseEntity<EcommerceGenericResponse> actualEcommerceGenericResponseResponseEntity = orderService.placeOrder(orderServiceRequestDTO);
+
+        assertNotNull(actualEcommerceGenericResponseResponseEntity.getBody());
     }
 
-    /**
-     * Method: processPaymentFallback()
-     */
-    @Test
-    public void testProcessPaymentFallback() throws Exception {
-//TODO: Test goes here... 
-    }
 
-
-    /**
-     * Method: isProductOutOfStock(List<OrderedProductDTO> products, List<ProductData> productsInventory)
-     */
-    @Test
-    public void testIsProductOutOfStock() throws Exception {
-//TODO: Test goes here... 
-/* 
-try { 
-   Method method = OrderServiceImpl.getClass().getMethod("isProductOutOfStock", List<OrderedProductDTO>.class, List<ProductData>.class); 
-   method.setAccessible(true); 
-   method.invoke(<Object>, <Parameters>); 
-} catch(NoSuchMethodException e) { 
-} catch(IllegalAccessException e) { 
-} catch(InvocationTargetException e) { 
-} 
-*/
-    }
-
-    /**
-     * Method: saveOrderRecord(OrderServiceRequestDTO orderServiceRequestDTO, List<String> productIds)
-     */
-    @Test
-    public void testSaveOrderRecord() throws Exception {
-//TODO: Test goes here... 
-
-try { 
-   Method method = OrderServiceImpl.getClass().getMethod("saveOrderRecord", OrderServiceRequestDTO.class, List<String>.class);
-   method.setAccessible(true); 
-   method.invoke(<Object>, <Parameters>); 
-} catch(NoSuchMethodException e) { 
-} catch(IllegalAccessException e) { 
-} catch(InvocationTargetException e) {
-} 
-
-    }
-
-    /**
-     * Method: callProductService(List<String> productIds, HttpHeaders headers)
-     */
-    @Test
-    public void testCallProductService() throws Exception {
-//TODO: Test goes here... 
-/* 
-try { 
-   Method method = OrderServiceImpl.getClass().getMethod("callProductService", List<String>.class, HttpHeaders.class); 
-   method.setAccessible(true); 
-   method.invoke(<Object>, <Parameters>); 
-} catch(NoSuchMethodException e) { 
-} catch(IllegalAccessException e) { 
-} catch(InvocationTargetException e) { 
-} 
-*/
-    }
-
-    /**
-     * Method: callPaymentService(OrderServiceRequestDTO orderServiceRequestDTO, HttpHeaders headers)
-     */
-    @Test
-    public void testCallPaymentService() throws Exception {
-//TODO: Test goes here... 
-/* 
-try { 
-   Method method = OrderServiceImpl.getClass().getMethod("callPaymentService", OrderServiceRequestDTO.class, HttpHeaders.class); 
-   method.setAccessible(true); 
-   method.invoke(<Object>, <Parameters>); 
-} catch(NoSuchMethodException e) { 
-} catch(IllegalAccessException e) { 
-} catch(InvocationTargetException e) { 
-} 
-*/
-    }
-
-} 
+}
