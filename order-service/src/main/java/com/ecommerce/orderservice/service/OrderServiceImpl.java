@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
-public class OrderServiceImpl implements OrderService {
+public class  OrderServiceImpl implements OrderService {
     private static final String MAKING_A_CALL_TO_PAYMENT_SERVICE = "Making a call to order service";
     private static final String MAKING_A_CALL_TO_PRODUCT_SERVICE = "Making a call to Product service";
     private static final String PAYMENT_SERVICE_RESPONSE = "payment service call completed";
