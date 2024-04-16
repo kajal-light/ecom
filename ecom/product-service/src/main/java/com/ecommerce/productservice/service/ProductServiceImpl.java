@@ -1,4 +1,4 @@
-package com.ecommersce.productservice.service;
+package com.ecommerce.productservice.service;
 
 import com.ecommerce.dto.ProductData;
 import com.ecommerce.dto.ProductRequest;
@@ -8,8 +8,8 @@ import com.ecommerce.exception.InvalidProductException;
 import com.ecommerce.exception.NoProductFoundException;
 import com.ecommerce.exception.OutOfStockException;
 import com.ecommerce.exception.dto.ErrorDetails;
-import com.ecommersce.productservice.constants.ProductServiceConstants;
-import com.ecommersce.productservice.dao.ProductRepository;
+import com.ecommerce.productservice.constants.ProductServiceConstants;
+import com.ecommerce.productservice.dao.ProductRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -158,7 +158,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public List<ProductResponse> getProductByPrice(String category,Double minPrice, Double maxPrice) {
+    public List<ProductResponse> getProductByCategoryAndPrice(String category, Double minPrice, Double maxPrice) {
 
 
         List<Products> listOfProductEntity = productRepository.findByProductPriceBetween(category,minPrice, maxPrice);

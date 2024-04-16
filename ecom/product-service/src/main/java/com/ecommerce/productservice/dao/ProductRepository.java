@@ -1,4 +1,4 @@
-package com.ecommersce.productservice.dao;
+package com.ecommerce.productservice.dao;
 
 import com.ecommerce.entity.Products;
 

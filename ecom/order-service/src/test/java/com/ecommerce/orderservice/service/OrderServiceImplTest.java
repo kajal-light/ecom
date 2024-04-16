@@ -1,4 +1,4 @@
-package test.com.ecommerce.orderservice.service;
+package com.ecommerce.orderservice.service;
 
 
 import com.ecommerce.dto.EcommerceGenericResponse;

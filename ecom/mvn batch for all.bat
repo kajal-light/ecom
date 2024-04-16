@@ -2,7 +2,7 @@
 setlocal enabledelayedexpansion
 
 rem Set the folder path to search
-set "folder_path=C:\Users\KASHELKE\Desktop\ecom\ecom"
+set "folder_path=D:\Projects\Kajal\e-commerce\ecom\ecom"
 
 
 rem Search for pom.xml file in immediate subfolders

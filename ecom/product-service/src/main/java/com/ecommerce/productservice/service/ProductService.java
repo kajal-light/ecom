@@ -1,4 +1,4 @@
-package com.ecommersce.productservice.service;
+package com.ecommerce.productservice.service;
 
 import com.ecommerce.dto.ProductData;
 import com.ecommerce.dto.ProductRequest;
@@ -25,7 +25,7 @@ public interface ProductService {
 
     List<ProductResponse> getProductByCategory(String category) ;
 
-    List<ProductResponse> getProductByPrice(String category,Double minPrice, Double maxPrice) ;
+    List<ProductResponse> getProductByCategoryAndPrice(String category, Double minPrice, Double maxPrice) ;
     List<ProductResponse> getProductByRating(String category,Double rating) ;
 
     List<ProductData> getListOfStock(List<String> productsId) ;

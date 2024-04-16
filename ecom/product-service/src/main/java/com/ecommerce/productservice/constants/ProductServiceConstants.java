@@ -1,4 +1,4 @@
-package com.ecommersce.productservice.constants;
+package com.ecommerce.productservice.constants;
 
 public class ProductServiceConstants {
     private ProductServiceConstants(){}

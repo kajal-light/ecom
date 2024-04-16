@@ -1,9 +1,8 @@
-package com.ecommersce.productservice.controller;
+package com.ecommerce.productservice.controller;
 
 import com.ecommerce.dto.ProductRequest;
-import com.ecommerce.dto.ProductResponse;
 
-import com.ecommersce.productservice.service.ProductService;
+import com.ecommerce.productservice.service.ProductService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;

@@ -1,4 +1,4 @@
-package com.ecommersce.productservice.service;
+package com.ecommerce.productservice.service;
 
 import com.ecommerce.dto.ProductRequest;
 import com.ecommerce.dto.ProductResponse;
@@ -6,7 +6,7 @@ import com.ecommerce.entity.Products;
 
 import com.ecommerce.exception.NoProductFoundException;
 import com.ecommerce.exception.OutOfStockException;
-import com.ecommersce.productservice.dao.ProductRepository;
+import com.ecommerce.productservice.dao.ProductRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 
@@ -167,9 +168,9 @@ class ProductServiceImplTest {
     void getProductByPrice() {
         List<Products> ListOfProductEntity = new ArrayList<>();
         ListOfProductEntity.add(getProductEntity());
-        when(productRepository.findByProductPriceBetween(23.0, 34.78)).thenReturn(ListOfProductEntity);
+        when(productRepository.findByProductPriceBetween(anyString(),23.0, 34.78)).thenReturn(ListOfProductEntity);
 
-        productServiceImpl.getProductByPrice(23.0, 34.78);
+        productServiceImpl.getProductByCategoryAndPrice("",23.0, 34.78);
         Assertions.assertNotNull(ListOfProductEntity);
 
     }
@@ -177,10 +178,10 @@ class ProductServiceImplTest {
     @Test
     void testProductNotFoundByPrice() {
 
-        when(productRepository.findByProductPriceBetween(23.0, 34.78)).thenReturn(new ArrayList<>());
+        when(productRepository.findByProductPriceBetween(anyString(),23.0, 34.78)).thenReturn(new ArrayList<>());
 
         assertThrows(NoProductFoundException.class, () -> {
-            productServiceImpl.getProductByPrice(23.0, 34.78);
+            productServiceImpl.getProductByCategoryAndPrice("",23.0, 34.78);
         }, "Expected NoDataFoundException to be thrown");
 
     }
@@ -191,9 +192,9 @@ class ProductServiceImplTest {
 
         List<Products> ListOfProductEntity = new ArrayList<>();
         ListOfProductEntity.add(getProductEntity());
-        when(productRepository.findByRating(2.0)).thenReturn(ListOfProductEntity);
+        when(productRepository.findByRating(anyString(),2.0)).thenReturn(ListOfProductEntity);
 
-        productServiceImpl.getProductByRating(2.0);
+        productServiceImpl.getProductByRating("anyString()",2.0);
         Assertions.assertNotNull(ListOfProductEntity);
 
     }
@@ -201,10 +202,10 @@ class ProductServiceImplTest {
     @Test
     void testProductNotFoundByRating() {
 
-        when(productRepository.findByRating(2.0)).thenReturn(new ArrayList<>());
+        when(productRepository.findByRating(anyString(),2.0)).thenReturn(new ArrayList<>());
 
         assertThrows(NoProductFoundException.class, () -> {
-            productServiceImpl.getProductByRating(2.0);
+            productServiceImpl.getProductByRating("",2.0);
         }, "Expected NoDataFoundException to be thrown");
 
     }

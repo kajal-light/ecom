@@ -1,7 +1,7 @@
-package com.ecommersce.productservice.controller;
+package com.ecommerce.productservice.controller;
 
 import com.ecommerce.dto.ProductResponse;
-import com.ecommersce.productservice.service.ProductService;
+import com.ecommerce.productservice.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -44,7 +44,7 @@ public class ProductFetcher {
     @GetMapping("/getProductByPriceRange/category/{category}/minPrice/{minPrice}/maxPrice/{maxPrice}")
     public ResponseEntity<List<ProductResponse>> getProductByPrice(@PathVariable String category,@PathVariable Double minPrice, @PathVariable Double maxPrice)  {
 
-        return  ResponseEntity.ok(productService.getProductByPrice(category,minPrice,maxPrice));
+        return  ResponseEntity.ok(productService.getProductByCategoryAndPrice(category,minPrice,maxPrice));
 
     }
 

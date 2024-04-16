@@ -1,10 +1,9 @@
-package com.ecommersce.productservice.controller;
+package com.ecommerce.productservice.controller;
 
 
 import com.ecommerce.dto.ProductData;
 import com.ecommerce.dto.ProductRequest;
-import com.ecommerce.dto.ProductResponse;
-import com.ecommersce.productservice.service.ProductService;
+import com.ecommerce.productservice.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

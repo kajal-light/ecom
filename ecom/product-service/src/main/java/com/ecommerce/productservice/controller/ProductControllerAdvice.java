@@ -1,4 +1,4 @@
-package com.ecommersce.productservice.controller;
+package com.ecommerce.productservice.controller;
 
 
 import com.ecommerce.exception.InvalidProductException;

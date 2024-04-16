@@ -10,7 +10,6 @@ import com.ecommerce.paymentservice.repository.PaymentRepository;
 import com.ecommerce.paymentservice.repository.UserRepository;
 import com.ecommerce.exception.InsufficientBalanceException;
 import com.ecommerce.exception.dto.ErrorDetails;
-import com.ecommersce.productservice.constants.ProductServiceConstants;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
