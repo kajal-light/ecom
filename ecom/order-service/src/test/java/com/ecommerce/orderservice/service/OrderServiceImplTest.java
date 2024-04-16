@@ -6,7 +6,6 @@ import com.ecommerce.dto.OrderServiceRequestDTO;
 import com.ecommerce.dto.OrderedProductDTO;
 import com.ecommerce.dto.ProductData;
 import com.ecommerce.orderservice.dao.OrderRepository;
-import com.ecommerce.orderservice.service.OrderServiceImpl;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -15,12 +14,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.client.RestTemplate;
 
@@ -29,6 +26,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -43,7 +41,7 @@ public class OrderServiceImplTest {
 
 
     @InjectMocks
-    OrderServiceImpl orderService;
+    OrderServiceImpl orderService = new OrderServiceImpl();
 
     @Mock
     RestTemplate restTemplate;
@@ -78,21 +76,22 @@ public class OrderServiceImplTest {
         );
         List<ProductData> productsResponse = List.of(
                 new ProductData("1", 1000),
-                new ProductData("2", 0)
+                new ProductData("2", 10)
         );
         String jsonResponse = "[{\"productId\":\"1\",\"stock\":1000},{\"productId\":\"2\",\"stock\":0}]";
 
         when(orderServiceRequestDTO.getProducts()).thenReturn(products);
 
-        ResponseEntity<JsonNode> productResponse = new ResponseEntity<>(mapper.readTree(jsonResponse), HttpStatus.OK);
-        when(restTemplate.exchange(eq(MOCKED_PRODUCT_SERVICE_URL), eq(HttpMethod.POST), any(HttpEntity.class), eq(JsonNode.class))).thenReturn(productResponse);
+        ObjectMapper mapper2 = new ObjectMapper();
+        JsonNode jsonNode = mapper2.readTree(jsonResponse);
+        ResponseEntity<JsonNode> productResponse = new ResponseEntity<>(jsonNode, HttpStatus.OK);
+        doReturn(productResponse).when(restTemplate).exchange(eq(MOCKED_PRODUCT_SERVICE_URL), eq(HttpMethod.POST), any(HttpEntity.class), eq(JsonNode.class));
 
         when(mapper.writeValueAsString(any())).thenReturn(jsonResponse);
-        Mockito.when(mapper.readValue(
-                anyString(), // JSON string
-                ArgumentMatchers.eq(new TypeReference<>() {
-                                    } // Type reference
-                ))).thenReturn(productsResponse);
+
+        doReturn(productsResponse).when(mapper).readValue(
+                eq(jsonResponse), // JSON string
+                any(TypeReference.class));
         ResponseEntity<EcommerceGenericResponse> actualEcommerceGenericResponseResponseEntity = orderService.placeOrder(orderServiceRequestDTO);
 
         assertNotNull(actualEcommerceGenericResponseResponseEntity.getBody());

@@ -35,8 +35,10 @@ public class OrderServiceImpl implements OrderService {
     private static final String MAKING_A_CALL_TO_PRODUCT_SERVICE = "Making a call to Product service";
     private static final String PAYMENT_SERVICE_RESPONSE = "payment service call completed";
 
-    RestTemplate restTemplate = new RestTemplate();
-    ObjectMapper mapper = new ObjectMapper();
+    @Autowired
+    RestTemplate restTemplate;
+    @Autowired
+    ObjectMapper mapper ;
 
     @Autowired
     private OrderRepository orderRepository;
