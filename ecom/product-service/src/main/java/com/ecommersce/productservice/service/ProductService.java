@@ -25,8 +25,8 @@ public interface ProductService {
 
     List<ProductResponse> getProductByCategory(String category) ;
 
-    List<ProductResponse> getProductByPrice(Double minPrice, Double maxPrice) ;
-    List<ProductResponse> getProductByRating(Double rating) ;
+    List<ProductResponse> getProductByPrice(String category,Double minPrice, Double maxPrice) ;
+    List<ProductResponse> getProductByRating(String category,Double rating) ;
 
     List<ProductData> getListOfStock(List<String> productsId) ;
 }
