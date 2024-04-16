@@ -57,16 +57,16 @@ public class OrderServiceImpl implements OrderService {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         PaymentResponse response = new PaymentResponse();
-        List<String> productStock = null;
+        List<String> outOfStockProducts = null;
         try {
             List<OrderedProductDTO> products = orderServiceRequestDTO.getProducts();
             List<String> productIds = products.stream().map(OrderedProductDTO::getProductId).toList();
             log.info(MAKING_A_CALL_TO_PRODUCT_SERVICE);
             //making call to product service to fetch stocks for their respective products Id
             List<ProductData> stockList = callProductService(productIds, headers);
-            productStock = checkProductStockAvailabilityStatus(products, stockList);
-            //todo: productOutOfStock variable name hoga ya instock?
-            if (productStock.isEmpty()) {
+            outOfStockProducts = checkProductStockAvailabilityStatus(products, stockList);
+
+            if (outOfStockProducts.isEmpty()) {
                 saveOrderRecord(orderServiceRequestDTO, productIds);
                 response = callPaymentService(orderServiceRequestDTO, headers);
                 return new ResponseEntity<>(response, HttpStatus.CREATED);
@@ -142,8 +142,7 @@ public class OrderServiceImpl implements OrderService {
         paymentRequest.setOrderAmount(BigDecimal.valueOf(orderServiceRequestDTO.getTotalAmount()));
         paymentRequest.setDateOfOrder(LocalDate.now().atStartOfDay());
         paymentRequest.setUserId(orderServiceRequestDTO.getUserId());
-        HttpEntity<PaymentRequest> paymentRequestEntity;
-        paymentRequestEntity = new HttpEntity<>(paymentRequest, headers);
+        HttpEntity<PaymentRequest> paymentRequestEntity= new HttpEntity<>(paymentRequest, headers);
         log.info(MAKING_A_CALL_TO_PAYMENT_SERVICE);
         ResponseEntity<JsonNode> paymentJson = restTemplate.exchange(paymentService, HttpMethod.POST, paymentRequestEntity, JsonNode.class);
         log.info(PAYMENT_SERVICE_RESPONSE);
