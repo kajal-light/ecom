@@ -51,7 +51,7 @@ public class OrderServiceImpl implements OrderService {
 
 
     @Override
-    @CircuitBreaker(name = "processPayment", fallbackMethod = "processPaymentFallback")
+    @CircuitBreaker(name = "placeOrder", fallbackMethod = "placeOrderFallback")
     @Transactional
     public ResponseEntity<EcommerceGenericResponse> placeOrder(OrderServiceRequestDTO orderServiceRequestDTO) {
         HttpHeaders headers = new HttpHeaders();
@@ -71,7 +71,7 @@ public class OrderServiceImpl implements OrderService {
                 response = callPaymentService(orderServiceRequestDTO, headers);
                 return new ResponseEntity<>(response, HttpStatus.CREATED);
             } else {
-                throw new OutOfStockException(new ErrorDetails(HttpStatus.CONFLICT, OrderServiceConstants.PRODUCT_OUT_OF_STOCK_MESSAGE, OrderServiceConstants.PRODUCT_OUT_OF_STOCK_CODE, OrderServiceConstants.SERVICE_NAME, LocalDateTime.now().toString()));
+                throw new OutOfStockException(new ErrorDetails(HttpStatus.GONE, OrderServiceConstants.PRODUCT_OUT_OF_STOCK_MESSAGE, OrderServiceConstants.PRODUCT_OUT_OF_STOCK_CODE, OrderServiceConstants.SERVICE_NAME, LocalDateTime.now().toString()));
             }
 
         } catch (JsonProcessingException | NoProductFoundException e) {
@@ -91,7 +91,7 @@ public class OrderServiceImpl implements OrderService {
             return new ResponseEntity<>(errorDetails, HttpStatus.PRECONDITION_FAILED);
         } catch (OutOfStockException e) {
             log.error(e.getMessage());
-            throw new OutOfStockException(new ErrorDetails(HttpStatus.BAD_REQUEST, OrderServiceConstants.PRODUCT_OUT_OF_STOCK_MESSAGE, OrderServiceConstants.PRODUCT_OUT_OF_STOCK_CODE, OrderServiceConstants.SERVICE_NAME, LocalDateTime.now().toString()));
+            throw new OutOfStockException(new ErrorDetails(HttpStatus.GONE, OrderServiceConstants.PRODUCT_OUT_OF_STOCK_MESSAGE, OrderServiceConstants.PRODUCT_OUT_OF_STOCK_CODE, OrderServiceConstants.SERVICE_NAME, LocalDateTime.now().toString()));
 
         }
 
@@ -153,10 +153,10 @@ public class OrderServiceImpl implements OrderService {
     }
 
     //todo: implement fallback method
-    public String processPaymentFallback() {
-
-
-        return "SERVICE IS DOWN, PLEASE TRY AFTER SOMETIME !!!";
+    public  ResponseEntity<EcommerceGenericResponse>  placeOrderFallback(OrderServiceRequestDTO orderServiceRequestDTO, Throwable throwable) {
+        log.error("Fallback method invoked for placeOrder: {}", throwable.getMessage());
+        ErrorDetails errorDetails = new ErrorDetails(HttpStatus.SERVICE_UNAVAILABLE, "Fallback Error", "Fallback Error", "Fallback", LocalDateTime.now().toString());
+        return new ResponseEntity<>(errorDetails, HttpStatus.SERVICE_UNAVAILABLE);
     }
 
 
