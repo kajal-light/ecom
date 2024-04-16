@@ -158,10 +158,10 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public List<ProductResponse> getProductByPrice(Double minPrice, Double maxPrice) {
+    public List<ProductResponse> getProductByPrice(String category,Double minPrice, Double maxPrice) {
 
 
-        List<Products> listOfProductEntity = productRepository.findByProductPriceBetween(minPrice, maxPrice);
+        List<Products> listOfProductEntity = productRepository.findByProductPriceBetween(category,minPrice, maxPrice);
         if (!listOfProductEntity.isEmpty()) {
 
             return listOfProductEntity.stream().map(productEntity -> {
@@ -178,9 +178,9 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public List<ProductResponse> getProductByRating(Double rating) {
+    public List<ProductResponse> getProductByRating(String category,Double rating) {
 
-        List<Products> listOfProductEntity = productRepository.findByRating(rating);
+        List<Products> listOfProductEntity = productRepository.findByRating(category,rating);
 
 
         if (!listOfProductEntity.isEmpty()) {

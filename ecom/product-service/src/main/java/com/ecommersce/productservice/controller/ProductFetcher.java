@@ -41,17 +41,17 @@ public class ProductFetcher {
         return ResponseEntity.ok(productService.getProductByCategory(category));
 
     }
-    @GetMapping("/getProductByPriceRange/minPrice/{minPrice}/maxPrice/{maxPrice}")
-    public ResponseEntity<List<ProductResponse>> getProductByPrice(@PathVariable Double minPrice, @PathVariable Double maxPrice)  {
+    @GetMapping("/getProductByPriceRange/category/{category}/minPrice/{minPrice}/maxPrice/{maxPrice}")
+    public ResponseEntity<List<ProductResponse>> getProductByPrice(@PathVariable String category,@PathVariable Double minPrice, @PathVariable Double maxPrice)  {
 
-        return  ResponseEntity.ok(productService.getProductByPrice(minPrice,maxPrice));
+        return  ResponseEntity.ok(productService.getProductByPrice(category,minPrice,maxPrice));
 
     }
 
-    @GetMapping("/getProductByRating/rating/{rating}")
-    public ResponseEntity<List<ProductResponse>> getProductByRating(@PathVariable Double rating)  {
+    @GetMapping("/getProductByRating/category/{category}/rating/{rating}")
+    public ResponseEntity<List<ProductResponse>> getProductByRating(@PathVariable String category, @PathVariable Double rating)  {
 
-        return  ResponseEntity.ok(productService.getProductByRating(rating));
+        return  ResponseEntity.ok(productService.getProductByRating(category,rating));
 
     }
 
