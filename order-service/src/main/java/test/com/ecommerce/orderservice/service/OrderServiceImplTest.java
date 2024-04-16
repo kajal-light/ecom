@@ -14,6 +14,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
@@ -30,7 +31,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
-@ExtendWith(SpringExtension.class)
+@ExtendWith(MockitoExtension.class)
 
 public class OrderServiceImplTest {
 
@@ -82,15 +83,14 @@ public class OrderServiceImplTest {
         String jsonResponse = "[{\"productId\":\"1\",\"stock\":1000},{\"productId\":\"2\",\"stock\":0}]";
 
         when(orderServiceRequestDTO.getProducts()).thenReturn(products);
-        JsonNode jsonNodeMock = Mockito.mock(JsonNode.class);
-        Mockito.when(mapper.valueToTree(productsResponse)).thenReturn(jsonNodeMock);
+
         ResponseEntity<JsonNode> productResponse = new ResponseEntity<>(mapper.readTree(jsonResponse), HttpStatus.OK);
         when(restTemplate.exchange(eq(MOCKED_PRODUCT_SERVICE_URL), eq(HttpMethod.POST), any(HttpEntity.class), eq(JsonNode.class))).thenReturn(productResponse);
 
         when(mapper.writeValueAsString(any())).thenReturn(jsonResponse);
         Mockito.when(mapper.readValue(
                 anyString(), // JSON string
-                ArgumentMatchers.eq(new TypeReference<List<ProductData>>() {
+                ArgumentMatchers.eq(new TypeReference<>() {
                                     } // Type reference
                 ))).thenReturn(productsResponse);
         ResponseEntity<EcommerceGenericResponse> actualEcommerceGenericResponseResponseEntity = orderService.placeOrder(orderServiceRequestDTO);
