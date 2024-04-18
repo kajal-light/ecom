@@ -32,7 +32,9 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     private static final String MAKING_A_CALL_TO_ORDER_SERVICE = "Making a call to order service";
     private static final String MAKING_A_CALL_TO_PRODUCT_SERVICE = "Making a call to Product service";
     private final ShoppingCartRepository shoppingCartRepository;
+   @Autowired
     RestTemplate restTemplate = new RestTemplate();
+    @Autowired
     ObjectMapper objectMapper = new ObjectMapper();
     @Value("${order.service.url}")
     private String orderServiceUrl;

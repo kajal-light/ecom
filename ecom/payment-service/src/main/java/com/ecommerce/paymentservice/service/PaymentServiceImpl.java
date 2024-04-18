@@ -45,6 +45,16 @@ public class PaymentServiceImpl implements PaymentService {
             proceedPaymentForCreditCard(paymentRequest, response);
 
         } else {
+            Payment payment = new Payment();
+
+            payment.setPaymentMethod(PaymentType.COD);
+            payment.setOrderAmount(paymentRequest.getOrderAmount());
+            payment.setPaymentId(UUID.randomUUID().toString());
+            payment.setPaymentStatus(String.valueOf(PaymentStatus.PENDING));
+            payment.setUserId(paymentRequest.getUserId());
+            payment.setOrderDate(LocalDateTime.now());
+            paymentRepository.save(payment);
+
 
             response.setPaymentStatus(PaymentStatus.PENDING);
             response.setPaymentMethod(PaymentType.COD);
@@ -72,6 +82,7 @@ public class PaymentServiceImpl implements PaymentService {
         paymentResponse.setPaymentStatus(PaymentStatus.IN_PROGRESS);
         Payment payment = new Payment();
         if (balance > 0) {
+
             BeanUtils.copyProperties(paymentRequest, payment);
             payment.setPaymentId(UUID.randomUUID().toString());
             payment.setPaymentStatus(PaymentStatus.COMPLETED.toString());
@@ -86,6 +97,7 @@ public class PaymentServiceImpl implements PaymentService {
             paymentResponse.setOrderDate(paymentRequest.getDateOfOrder());
 
         } else if (balance < 0) {
+
             BeanUtils.copyProperties(paymentRequest, paymentResponse);
             paymentResponse.setPaymentDate(LocalDateTime.now());
             payment.setPaymentStatus(PaymentStatus.FAILED.toString());
