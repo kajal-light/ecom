@@ -1,11 +1,13 @@
 package com.ecommerce.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import java.time.LocalDate;
 
 @Data
+
 @Entity
 public class ShoppingBag {
 @Id

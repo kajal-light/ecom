@@ -25,7 +25,6 @@ import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
-import java.lang.reflect.Field;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -67,7 +66,7 @@ public class OrderServiceImplTest {
     }
 
     @Test
-    public void testPlaceOrderCompleted() throws Exception {
+     void testPlaceOrderCompleted() throws Exception {
         OrderServiceRequestDTO orderServiceRequestDTO = Mockito.mock(OrderServiceRequestDTO.class);
         List<OrderedProductDTO> products = List.of(
                 new OrderedProductDTO("1", 10d, 100),
@@ -117,7 +116,7 @@ public class OrderServiceImplTest {
 
 
     @Test
-    public void testPlaceOrderProductServiceThrowsJsonProcessingException() throws Exception {
+     void testPlaceOrderProductServiceThrowsJsonProcessingException() throws Exception {
         OrderServiceRequestDTO orderServiceRequestDTO = Mockito.mock(OrderServiceRequestDTO.class);
         List<OrderedProductDTO> products = List.of(
                 new OrderedProductDTO("1", 10d, 100),
@@ -140,7 +139,7 @@ public class OrderServiceImplTest {
     }
 
     @Test
-    public void testPlaceOrderProductServiceThrowsHttpStatusCodeException() throws Exception {
+     void testPlaceOrderProductServiceThrowsHttpStatusCodeException() throws Exception {
         OrderServiceRequestDTO orderServiceRequestDTO = Mockito.mock(OrderServiceRequestDTO.class);
         List<OrderedProductDTO> products = List.of(
                 new OrderedProductDTO("1", 10d, 100),
@@ -167,7 +166,7 @@ public class OrderServiceImplTest {
 
 
     @Test
-    public void testPlaceOrderProductServiceThrowsHttpStatusCodeExceptionCatchJsonProcessingException() throws Exception {
+     void testPlaceOrderProductServiceThrowsHttpStatusCodeExceptionCatchJsonProcessingException() throws Exception {
         OrderServiceRequestDTO orderServiceRequestDTO = Mockito.mock(OrderServiceRequestDTO.class);
         List<OrderedProductDTO> products = List.of(
                 new OrderedProductDTO("1", 10d, 100),
@@ -192,7 +191,7 @@ public class OrderServiceImplTest {
     }
 
     @Test
-    public void testPlaceOrderProductOutOfStock() throws Exception {
+     void testPlaceOrderProductOutOfStock() throws Exception {
         OrderServiceRequestDTO orderServiceRequestDTO = Mockito.mock(OrderServiceRequestDTO.class);
         List<OrderedProductDTO> products = List.of(
                 new OrderedProductDTO("1", 10d, 2100),

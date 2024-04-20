@@ -33,13 +33,13 @@ public class PaymentControllerTest {
     @Test
     void placeOrder(){
         String userId="shd";
-        PaymentResponse resposen=new PaymentResponse();
-        resposen.setUserId(userId);
-        resposen.setPaymentStatus(PaymentStatus.COMPLETED);
-        resposen.setOrderDate(LocalDateTime.now());
-        resposen.setPaymentMethod(PaymentType.COD);
-        resposen.setOrderAmount(String.valueOf(23.00));
-        resposen.setPaymentDate(LocalDateTime.now());
+        PaymentResponse response=new PaymentResponse();
+        response.setUserId(userId);
+        response.setPaymentStatus(PaymentStatus.COMPLETED);
+        response.setOrderDate(LocalDateTime.now());
+        response.setPaymentMethod(PaymentType.COD);
+        response.setOrderAmount(String.valueOf(23.00));
+        response.setPaymentDate(LocalDateTime.now());
 
         PaymentRequest mockPaymentRequest=new PaymentRequest();
         mockPaymentRequest.setPaymentMethod(PaymentType.COD);
@@ -47,9 +47,9 @@ public class PaymentControllerTest {
         mockPaymentRequest.setUserId(userId);
         mockPaymentRequest.setDateOfOrder(LocalDateTime.now());
         mockPaymentRequest.setPaymentMethod(PaymentType.COD);
-        when(paymentService.processPayment(mockPaymentRequest)).thenReturn(resposen);
-        ResponseEntity<PaymentResponse> response=orderController.processPayment(mockPaymentRequest);
-        assertEquals(mockPaymentRequest.getUserId(), resposen.getUserId());
+        when(paymentService.processPayment(mockPaymentRequest)).thenReturn(response);
+        ResponseEntity<PaymentResponse> paymentResponse=orderController.processPayment(mockPaymentRequest);
+        assertEquals(mockPaymentRequest.getUserId(), response.getUserId());
     }
 }
 

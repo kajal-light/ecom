@@ -31,7 +31,8 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     private static final String ITEM_REMOVED_FROM_CART = "ITEM REMOVED FROM CART";
     private static final String MAKING_A_CALL_TO_ORDER_SERVICE = "Making a call to order service";
     private static final String MAKING_A_CALL_TO_PRODUCT_SERVICE = "Making a call to Product service";
-    private final ShoppingCartRepository shoppingCartRepository;
+    @Autowired
+    private  ShoppingCartRepository shoppingCartRepository;
    @Autowired
     RestTemplate restTemplate = new RestTemplate();
     @Autowired
@@ -41,10 +42,10 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     @Value("${product.service.url}")
     private String productServiceUrl;
 
-    @Autowired
-    public ShoppingCartServiceImpl(ShoppingCartRepository shoppingCartRepository) {
-        this.shoppingCartRepository = shoppingCartRepository;
-    }
+//    @Autowired
+//    public ShoppingCartServiceImpl(ShoppingCartRepository shoppingCartRepository) {
+//        this.shoppingCartRepository = shoppingCartRepository;
+//    }
 
     private static OrderServiceRequestDTO getOrderServiceRequestDTO(String userId, List<ShoppingBag> listItemsInBag, double totalAmountOfUserOrder) {
         OrderServiceRequestDTO request = new OrderServiceRequestDTO();
